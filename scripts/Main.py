@@ -39,11 +39,12 @@ class Main:
         self.quitButton.grid(row=1, column=2, padx=3, pady=3)
 
     def getConfig(self):
-        from os.path import dirname, realpath
+        from os import getcwd
+        from os.path import dirname
         from configobj import ConfigObj
         from . import Defaults
 
-        Dir = dirname(realpath(__file__))
+        Dir = dirname(getcwd())
         ConfigDir = Dir + "\\config.ini"
         Config = ConfigObj(ConfigDir)
 
@@ -159,9 +160,3 @@ class Main:
         if self.activateButton["text"] == "连接":
             self.Config.write()
             quit()
-
-
-if __name__ == "__main__":
-    root = Main()
-    root.mainloop()
-
