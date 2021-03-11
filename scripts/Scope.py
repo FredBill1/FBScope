@@ -1,8 +1,5 @@
-from .Main import Main
-
-
 class Scope:
-    def __init__(self, main: Main) -> None:
+    def __init__(self, main) -> None:
         self.main = main
 
         from tkinter import Toplevel
@@ -10,6 +7,8 @@ class Scope:
         self.root = Toplevel(self.main.root)
         self.getConfig()
         self.setProperty()
+        self.transfering = False
+        self.drawData()
 
     def getConfig(self):
         self.CHECK = self.main.Config["SERIAL"]["CHECK"]
@@ -28,7 +27,7 @@ class Scope:
         self.sampleEntry = Entry(self.startFrame, textvariable=self.sampleVar, validate="focusout", validatecommand=self.entryCallback, width=5)
         self.startButton = Button(self.startFrame, text="开始", state="disabled", command=self.toggleTransfer)
 
-        bgs = ("blue", "orange", "dark green", "red", "purple", "cyan", "maroon", "gray")
+        bgs = ("steel blue", "orange", "dark green", "red", "purple", "cyan", "deep pink", "gray")
         types = ("int8", "uint8", "int16", "uint16", "int32", "uint32", "int64", "uint64", "float", "double")
         self.lineFrames = [LabelFrame(self.uiFrame, text="第%d条线" % (i + 1)) for i in range(8)]
         self.colorLabel = [LB(self.lineFrames[i], text="[X]", fg=bgs[i]) for i in range(8)]
@@ -64,13 +63,11 @@ class Scope:
     def setImg(self):
         from matplotlib.figure import Figure
         from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-        from matplotlib.backend_bases import key_press_handler
 
         self.fig = Figure()
         self.ax = self.fig.add_subplot(111)
         self.ax.grid()
         self.canvas = FigureCanvasTkAgg(self.fig, self.imgFrame)
-        self.canvas.draw()
         self.toolbar = NavigationToolbar2Tk(self.canvas, self.imgFrame)
         self.toolbar.update()
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
@@ -84,7 +81,6 @@ class Scope:
         else:
             for i in range(cur, t):
                 self.typeCombobox[i]["state"] = "readonly"
-
         self.Config["LINES"] = t
 
     def entryCallback(self):
@@ -101,15 +97,72 @@ class Scope:
     def typeCallback(self, i):
         self.Config["TYPES"][i] = self.typeCombobox[i].current()
 
-    def setTdata(self):
-        pass
-
-    def setLines(self):
-        pass
-
-    def plot(self):
-        pass
-
     def toggleTransfer(self):
-        pass
+        if self.startButton["text"] == "开始":
+            self.startButton["text"] = "停止"
+            self.countCombobox["state"] = "disabled"
+            self.sampleEntry["state"] = "disabled"
+            for i in range(self.Config["LINES"]):
+                self.typeCombobox[i]["state"] = "disabled"
+            self.main.setActivate(False)
+            self.main.camera.setActivate(False)
+            self.startTransfer()
+        else:
+            self.startButton["text"] = "开始"
+            self.countCombobox["state"] = "readonly"
+            self.sampleEntry["state"] = "normal"
+            for i in range(self.Config["LINES"]):
+                self.typeCombobox[i]["state"] = "readonly"
+            self.main.setActivate(True)
+            self.main.camera.setActivate(True)
+            self.transfering = False
 
+    def startTransfer(self):
+        from threading import Thread, Timer
+        from collections import deque
+
+        self.T = [i for i in range(self.Config["SAMPLECOUNT"])]
+        self.data = [deque([0] * self.Config["SAMPLECOUNT"], maxlen=self.Config["SAMPLECOUNT"]) for i in range(self.Config["LINES"])]
+
+        self.transfering = True
+        Thread(target=self.transfer).start()
+
+    def transfer(self):
+        from struct import unpack
+
+        while self.transfering:
+            buf = b"\x00\x00\x00\x00"
+            while self.transfering and buf != self.CHECK:
+                buf = (buf + self.main.read())[-4:]
+            for i in range(self.Config["LINES"]):
+                cur = self.Config["TYPES"][i]
+                if cur < 8:
+                    Len, signed = 1 << (cur >> 1), not (cur & 1)
+                    buf = b""
+                    while self.transfering and len(buf) < Len:
+                        buf += self.main.read()
+                    if self.transfering:
+                        res = int.from_bytes(buf, "little", signed=signed)
+                        self.data[i].append(res)
+                else:
+                    Len, format = 4 << (cur - 8), "d" if cur - 8 else "f"
+                    buf = b""
+                    while self.transfering and len(buf) < Len:
+                        buf += self.main.read()
+                    if self.transfering:
+                        res = unpack(format, buf)[0]
+                        self.data[i].append(res)
+
+    def drawData(self):
+        colors = ("tab:blue", "tab:orange", "tab:green", "tab:red", "tab:purple", "tab:cyan", "tab:pink", "tab:gray")
+        if self.transfering:
+            self.ax.cla()
+            self.ax.set_xlim(0, self.Config["SAMPLECOUNT"])
+            for i in range(self.Config["LINES"]):
+                self.ax.plot(self.T, self.data[i], color=colors[i])
+            self.canvas.draw()
+        self.root.after(100, self.drawData)
+
+    def setActivate(self, activate: bool):
+        state = ("disabled", "normal")
+        self.startButton["state"] = state[activate]

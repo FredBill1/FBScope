@@ -11,9 +11,9 @@ class Main:
         self.serial = Serial(baudrate=int(self.Config["SERIAL"]["BAUD"]))
 
         self.root = Tk()
-        # self.camera = Camera(self)
-        # self.adrc = ADRC(self)
-        # self.setstate = SetState(self)
+        self.camera = Camera(self)
+        self.adrc = ADRC(self)
+        self.setstate = SetState(self)
         self.scope = Scope(self)
         self.setProperty()
         self.getPorts()
@@ -68,19 +68,19 @@ class Main:
     def toggleConnection(self):
         if self.activateButton["text"] == "连接":
             self.activateButton["text"] = "断开"
-            self.root["bg"] = "red"
             self.portCombobox["state"] = self.refreshButton["state"] = self.quitButton["state"] = "disabled"
             self.camera.setActivate(True)
             self.adrc.setActivate(True)
             self.setstate.setActivate(True)
+            self.scope.setActivate(True)
             self.startCOM()
         else:
             self.activateButton["text"] = "连接"
-            self.root["bg"] = "white"
             self.portCombobox["state"] = self.refreshButton["state"] = self.quitButton["state"] = "normal"
             self.camera.setActivate(False)
             self.adrc.setActivate(False)
             self.setstate.setActivate(False)
+            self.scope.setActivate(False)
             self.serial.close()
 
     def startCOM(self):

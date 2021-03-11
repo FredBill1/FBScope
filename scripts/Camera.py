@@ -1,8 +1,5 @@
-# from Config import *
-
-
 class Camera:
-    def __init__(self, main=None) -> None:
+    def __init__(self, main) -> None:
         self.main = main
         self.getConfig()
         from os import listdir
@@ -56,6 +53,7 @@ class Camera:
             self.recordButton["state"] = "normal"
             self.transfering = True
             self.main.setActivate(False)
+            self.main.scope.setActivate(False)
             from threading import Thread
 
             Thread(target=self.transfer).start()
@@ -64,6 +62,7 @@ class Camera:
             self.recordButton["state"] = "disabled"
             self.transfering = False
             self.main.setActivate(True)
+            self.main.scope.setActivate(True)
 
     def toggleRecord(self):
         if self.recordButton["text"] == "录制":
