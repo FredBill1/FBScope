@@ -6,6 +6,7 @@ class Main:
         from .ADRC import ADRC
         from .SetState import SetState
         from .Scope import Scope
+        from .Manager import Manager
 
         self.Config = Config
         self.serial = Serial(baudrate=int(self.Config["SERIAL"]["BAUD"]))
@@ -15,6 +16,7 @@ class Main:
         self.adrc = ADRC(self)
         self.setstate = SetState(self)
         self.scope = Scope(self)
+        self.manager = Manager(self)
         self.setProperty()
         self.getPorts()
 

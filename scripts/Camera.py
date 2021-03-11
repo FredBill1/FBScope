@@ -48,14 +48,14 @@ class Camera:
         self.showCount()
 
     def toggleTransfer(self):
+        from threading import Thread
+
         if self.startButton["text"] == "开始":
             self.startButton["text"] = "停止"
             self.recordButton["state"] = "normal"
             self.transfering = True
             self.main.setActivate(False)
             self.main.scope.setActivate(False)
-            from threading import Thread
-
             Thread(target=self.transfer).start()
         else:
             self.startButton["text"] = "开始"
@@ -93,6 +93,8 @@ class Camera:
         self.showCount()
 
     def transfer(self):
+        from numpy import frombuffer
+
         while self.transfering:
             buf = b"\x00\x00\x00\x00"
             while self.transfering and buf != self.CHECK:
@@ -101,8 +103,6 @@ class Camera:
             while self.transfering and len(buf) < self.HEIGHT * self.WIDTH:
                 buf += self.main.read()
             if self.transfering:
-                from numpy import frombuffer
-
                 self.img = frombuffer(buf, "uint8").reshape((self.HEIGHT, self.WIDTH))
                 if self.recording:
                     self.shotImg()

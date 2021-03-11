@@ -1,9 +1,8 @@
 class SetState:
     def __init__(self, main) -> None:
-        self.main = main
-
         from tkinter import Toplevel
 
+        self.main = main
         self.root = Toplevel(self.main.root)
         self.getConfig()
         self.setProperty()
@@ -23,19 +22,7 @@ class SetState:
         states = ("disabled", "normal")
         self.toggleFrame = LabelFrame(self.root, text="状态控制")
         self.checked = [[BooleanVar(value=0) for j in range(2)] for j in range(4)]
-        self.buttons = [
-            [
-                Checkbutton(
-                    self.toggleFrame,
-                    text=title[j] + names[i],
-                    variable=self.checked[i][j],
-                    state=states[not j],
-                    command=lambda i=i, j=j: self.toggleCallback(i, j),
-                )
-                for j in range(2)
-            ]
-            for i in range(4)
-        ]
+        self.buttons = [[Checkbutton(self.toggleFrame, text=title[j] + names[i], variable=self.checked[i][j], state=states[not j], command=lambda i=i, j=j: self.toggleCallback(i, j),) for j in range(2)] for i in range(4)]
         self.stateButton = Button(self.toggleFrame, text="上传", state="disabled", command=self.uploadState)
         self.resetButton = Button(self.toggleFrame, text="紧急重置", state="disabled", command=self.urgentReset)
 
@@ -44,22 +31,10 @@ class SetState:
         self.motorCombobox = Combobox(self.controlFrame, values=names, width=2, state="readonly")
         self.speedLabel = Label(self.controlFrame, text="速度:")
         self.speedVar = StringVar(value="0")
-        self.speedEntry = Entry(
-            self.controlFrame,
-            textvariable=self.speedVar,
-            validate="focusout",
-            validatecommand=lambda sv=self.speedVar: self.entryCallback(sv),
-            width=5,
-        )
+        self.speedEntry = Entry(self.controlFrame, textvariable=self.speedVar, validate="focusout", validatecommand=lambda sv=self.speedVar: self.entryCallback(sv), width=5,)
         self.pwmLabel = Label(self.controlFrame, text="pwm:")
         self.pwmVar = StringVar(value="0")
-        self.pwmEntry = Entry(
-            self.controlFrame,
-            textvariable=self.pwmVar,
-            validate="focusout",
-            validatecommand=lambda sv=self.pwmVar: self.entryCallback(sv),
-            width=5,
-        )
+        self.pwmEntry = Entry(self.controlFrame, textvariable=self.pwmVar, validate="focusout", validatecommand=lambda sv=self.pwmVar: self.entryCallback(sv), width=5,)
         self.speedButton = Button(self.controlFrame, text="上传速度", state="disabled", command=self.uploadSpeed)
         self.pwmButton = Button(self.controlFrame, text="上传pwm", state="disabled", command=self.uploadPwm)
 
@@ -101,9 +76,7 @@ class SetState:
 
     def setActivate(self, activate: bool):
         state = ("disabled", "normal")
-        self.stateButton["state"] = self.resetButton["state"] = self.speedButton["state"] = self.pwmButton[
-            "state"
-        ] = state[activate]
+        self.stateButton["state"] = self.resetButton["state"] = self.speedButton["state"] = self.pwmButton["state"] = state[activate]
 
     def uploadState(self):
         state = 0

@@ -21,10 +21,9 @@ def ADRCgetMat(wo, wc, b0, dt):
 
 class ADRC:
     def __init__(self, main) -> None:
-        self.main = main
-
         from tkinter import Toplevel
 
+        self.main = main
         self.root = Toplevel(self.main.root)
         self.setProperty()
 

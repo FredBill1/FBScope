@@ -32,3 +32,6 @@ SAMPLECOUNT = 500
 LINES = 4
 TYPES = [2, 2, 2, 2, 2, 2, 2, 2]
 
+# MANAGER
+WINDOWON = [0, 0, 0, 0]
+

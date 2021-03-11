@@ -48,5 +48,10 @@ def getConfig(dir):
     SCOPE["LINES"] = int(SCOPE["LINES"]) if "LINES" in SCOPE else Defaults.LINES
     SCOPE["TYPES"] = [int(v) for v in SCOPE["TYPES"]] if "TYPES" in SCOPE else Defaults.TYPES
 
+    if "MANAGER" not in Config:
+        Config["MANAGER"] = {}
+    MANAGER = Config["MANAGER"]
+    MANAGER["WINDOWON"] = [int(v) for v in MANAGER["WINDOWON"]] if "WINDOWON" in MANAGER else Defaults.WINDOWON
+
     Config.write()
     return Config
