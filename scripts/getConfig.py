@@ -46,6 +46,7 @@ def getConfig(dir):
     SCOPE = Config["SCOPE"]
     SCOPE["SAMPLECOUNT"] = int(SCOPE["SAMPLECOUNT"]) if "SAMPLECOUNT" in SCOPE else Defaults.SAMPLECOUNT
     SCOPE["LINES"] = int(SCOPE["LINES"]) if "LINES" in SCOPE else Defaults.LINES
+    SCOPE["TYPES"] = [int(v) for v in SCOPE["TYPES"]] if "TYPES" in SCOPE else Defaults.TYPES
 
     Config.write()
     return Config

@@ -30,3 +30,5 @@ SETPWM = b"\x04"
 # SCOPE
 SAMPLECOUNT = 500
 LINES = 4
+TYPES = [2, 2, 2, 2, 2, 2, 2, 2]
+

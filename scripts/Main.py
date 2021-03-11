@@ -11,9 +11,9 @@ class Main:
         self.serial = Serial(baudrate=int(self.Config["SERIAL"]["BAUD"]))
 
         self.root = Tk()
-        self.camera = Camera(self)
-        self.adrc = ADRC(self)
-        self.setstate = SetState(self)
+        # self.camera = Camera(self)
+        # self.adrc = ADRC(self)
+        # self.setstate = SetState(self)
         self.scope = Scope(self)
         self.setProperty()
         self.getPorts()
