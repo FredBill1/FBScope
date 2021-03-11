@@ -2,10 +2,10 @@ class Main:
     def __init__(self) -> None:
         from tkinter import Tk
         from serial import Serial
-        from Camera import Camera
-        from ADRC import ADRC
-        from SetState import SetState
-        from Scope import Scope
+        from .Camera import Camera
+        from .ADRC import ADRC
+        from .SetState import SetState
+        from .Scope import Scope
 
         self.Config = self.getConfig()
         self.serial = Serial(baudrate=int(self.Config["SERIAL"]["BAUD"]))
@@ -41,7 +41,7 @@ class Main:
     def getConfig(self):
         from os.path import dirname, realpath
         from configobj import ConfigObj
-        import Defaults
+        from . import Defaults
 
         Dir = dirname(realpath(__file__))
         ConfigDir = Dir + "\\config.ini"
