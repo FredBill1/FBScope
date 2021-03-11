@@ -1,0 +1,32 @@
+# SERIAL
+BAUD = 115200
+SEND = b"\xfb\xfb\xfb"
+CHECK = b"\x00\xff\x01\x01"
+
+
+# CAMERA
+HEIGHT = 60
+WIDTH = 80
+ZOOM = 6
+IMGDIR = "D:\\CarImg\\"
+
+
+# ADRC
+ADRCL1 = [40.0, 40.0, 40.0, 0.002]
+ADRCL2 = [40.0, 40.0, 40.0, 0.002]
+ADRCR1 = [40.0, 40.0, 40.0, 0.002]
+ADRCR2 = [40.0, 40.0, 40.0, 0.002]
+ADRCTURN = [40.0, 40.0, 40.0, 0.002]
+ADRCHEAD = b"\x02"
+
+
+# SETSTATE
+SETRESET = b"\x00"
+SETSTATE = b"\x01"
+SETSPEED = b"\x03"
+SETPWM = b"\x04"
+
+
+# SCOPE
+SAMPLECOUNT = 500
+LINES = 4
