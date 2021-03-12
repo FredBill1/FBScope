@@ -156,6 +156,7 @@ class Scope:
         colors = ("tab:blue", "tab:orange", "tab:green", "tab:red", "tab:purple", "tab:cyan", "tab:pink", "tab:gray")
         if self.transfering:
             self.ax.cla()
+            self.ax.grid()
             self.ax.set_xlim(0, self.Config["SAMPLECOUNT"])
             for i in range(self.Config["LINES"]):
                 self.ax.plot(self.T, self.data[i], color=colors[i])
