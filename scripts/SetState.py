@@ -82,7 +82,6 @@ class SetState:
         state = 0
         for i in range(4):
             state |= (self.checked[i][0].get() << i) + (self.checked[i][1].get() << (i + 4))
-        print(bytes([state]))
         self.main.write(self.CHECK + bytes([state]))
         self.root.bell()
 
