@@ -6,6 +6,7 @@ class Main:
         from .ADRC import ADRC
         from .SetState import SetState
         from .Scope import Scope
+        from .Remote import Remote
         from .Manager import Manager
 
         self.Config = Config
@@ -16,9 +17,11 @@ class Main:
         self.adrc = ADRC(self)
         self.setstate = SetState(self)
         self.scope = Scope(self)
+        self.remote = Remote(self)
         self.manager = Manager(self)
         self.setProperty()
         self.getPorts()
+        self.activate = 0
 
     def setProperty(self) -> None:
         from tkinter.ttk import LabelFrame, Combobox, Button
@@ -75,6 +78,7 @@ class Main:
             self.adrc.setActivate(True)
             self.setstate.setActivate(True)
             self.scope.setActivate(True)
+            self.remote.setActivate(True)
             self.startCOM()
         else:
             self.activateButton["text"] = "连接"
@@ -83,6 +87,7 @@ class Main:
             self.adrc.setActivate(False)
             self.setstate.setActivate(False)
             self.scope.setActivate(False)
+            self.remote.setActivate(False)
             self.serial.close()
 
     def startCOM(self):
@@ -95,8 +100,9 @@ class Main:
             return
 
     def setActivate(self, activate: bool):
+        self.activate += 1 if activate else -1
         state = ("disabled", "normal")
-        self.portCombobox["state"] = self.refreshButton["state"] = self.activateButton["state"] = state[activate]
+        self.portCombobox["state"] = self.refreshButton["state"] = self.activateButton["state"] = state[self.activate == 0]
         if activate:
             self.getPorts()
 

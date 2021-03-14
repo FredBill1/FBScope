@@ -31,10 +31,10 @@ class SetState:
         self.motorCombobox = Combobox(self.controlFrame, values=names, width=2, state="readonly")
         self.speedLabel = Label(self.controlFrame, text="速度:")
         self.speedVar = StringVar(value="0")
-        self.speedEntry = Entry(self.controlFrame, textvariable=self.speedVar, validate="focusout", validatecommand=lambda sv=self.speedVar: self.entryCallback(sv), width=5,)
+        self.speedEntry = Entry(self.controlFrame, textvariable=self.speedVar, validate="focusout", validatecommand=lambda sv=self.speedVar: self.entryCallback(sv), width=5)
         self.pwmLabel = Label(self.controlFrame, text="pwm:")
         self.pwmVar = StringVar(value="0")
-        self.pwmEntry = Entry(self.controlFrame, textvariable=self.pwmVar, validate="focusout", validatecommand=lambda sv=self.pwmVar: self.entryCallback(sv), width=5,)
+        self.pwmEntry = Entry(self.controlFrame, textvariable=self.pwmVar, validate="focusout", validatecommand=lambda sv=self.pwmVar: self.entryCallback(sv), width=5)
         self.speedButton = Button(self.controlFrame, text="上传速度", state="disabled", command=self.uploadSpeed)
         self.pwmButton = Button(self.controlFrame, text="上传pwm", state="disabled", command=self.uploadPwm)
 

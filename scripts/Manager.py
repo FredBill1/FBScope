@@ -13,12 +13,12 @@ class Manager:
 
     def getConfig(self):
         self.WINDOWON = self.main.Config["MANAGER"]["WINDOWON"]
-        self.toplevels = [self.main.camera.root, self.main.adrc.root, self.main.setstate.root, self.main.scope.root]
+        self.toplevels = [self.main.camera.root, self.main.adrc.root, self.main.setstate.root, self.main.scope.root, self.main.remote.root]
 
     def setProperty(self) -> None:
         from tkinter.ttk import Button
 
-        titles = ("摄像头", "ADRC", "电机控制", "虚拟示波器")
+        titles = ("摄像头", "ADRC", "电机控制", "虚拟示波器", "遥控器")
         self.buttons = [Button(self.root, text=titles[i], command=lambda i=i: self.toggleVisibility(i)) for i in range(len(titles))]
 
         self.root.title("窗口管理")
@@ -27,7 +27,7 @@ class Manager:
         self.root.attributes("-toolwindow", True)
         self.root.protocol("WM_DELETE_WINDOW", lambda: None)
 
-        for i in range(4):
+        for i in range(len(titles)):
             self.buttons[i].pack(padx=3, pady=3)
             self.applyVisibility(i)
 

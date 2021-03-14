@@ -48,6 +48,13 @@ def getConfig(dir):
     SCOPE["LINES"] = int(SCOPE["LINES"]) if "LINES" in SCOPE else Defaults.LINES
     SCOPE["TYPES"] = [int(v) for v in SCOPE["TYPES"]] if "TYPES" in SCOPE else Defaults.TYPES
 
+    if "REMOTE" not in Config:
+        Config["REMOTE"] = {}
+    REMOTE = Config["REMOTE"]
+    REMOTE["CHECK"] = eval(REMOTE["CHECK"]) if "CHECK" in REMOTE else Defaults.REMOTECHECK
+    REMOTE["SPEED"] = int(REMOTE["SPEED"]) if "SPEED" in REMOTE else Defaults.CARSPEED
+    REMOTE["TURN"] = int(REMOTE["TURN"]) if "TURN" in REMOTE else Defaults.TURNSPEED
+
     if "MANAGER" not in Config:
         Config["MANAGER"] = {}
     MANAGER = Config["MANAGER"]
