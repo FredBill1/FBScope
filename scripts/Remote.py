@@ -56,6 +56,8 @@ class Remote:
                 self.root.bind("<KeyRelease-%s>" % keys[i][j], lambda event, i=i, j=j: self.releaseCallback(i, j))
 
     def toggleTransfer(self):
+        from threading import Thread
+
         if self.startButton["text"] == "启动":
             self.startButton["text"] = "停止"
             self.speedEntry["state"] = self.turnEntry["state"] = "disabled"
@@ -69,7 +71,7 @@ class Remote:
                 self.main.setstate.buttons[i][1]["state"] = "normal"
             self.main.setstate.uploadState()
             self.transfering = True
-            self.transfer()
+            # Thread(target=self.transfer).start()
         else:
             self.startButton["text"] = "启动"
             self.speedEntry["state"] = self.turnEntry["state"] = "normal"
@@ -94,30 +96,29 @@ class Remote:
         return False
 
     def transfer(self) -> None:
-        from threading import Timer
-
-        turn = 0 if self.pressed[1][0] == self.pressed[1][2] else -self.Config["TURN"] if self.pressed[1][0] else self.Config["TURN"]
-        speed = 0 if self.pressed[0][1] == self.pressed[1][1] else self.Config["SPEED"] if self.pressed[0][1] else -self.Config["SPEED"]
-        self.main.write(self.Config["CHECK"] + bytes([self.direction]) + speed.to_bytes(2, "little", signed=True) + turn.to_bytes(2, "little", signed=True))
-        # print(self.Config["CHECK"] + bytes([self.direction]) + speed.to_bytes(2, "little", signed=True) + turn.to_bytes(2, "little", signed=True))
         if self.transfering:
-            Timer(0.1, self.transfer).start()
+            turn = 0 if self.pressed[1][0] == self.pressed[1][2] else -self.Config["TURN"] if self.pressed[1][0] else self.Config["TURN"]
+            speed = 0 if self.pressed[0][1] == self.pressed[1][1] else self.Config["SPEED"] if self.pressed[0][1] else -self.Config["SPEED"]
+            self.main.write(self.Config["CHECK"] + bytes([self.direction]) + speed.to_bytes(2, "little", signed=True) + turn.to_bytes(2, "little", signed=True))
 
     def pressCallback(self, i, j) -> None:
-        self.buttons[i][j]["fg"] = "red"
-        self.buttons[i][j].config(relief="sunken")
-        self.pressed[i][j] = True
-        if i == j == 0:
-            self.direction = (self.direction - 1) % 4
-            self.setFrameTitle()
-        if i == 0 and j == 2:
-            self.direction = (self.direction + 1) % 4
-            self.setFrameTitle()
+        if not self.pressed[i][j]:
+            self.buttons[i][j]["fg"] = "red"
+            self.buttons[i][j].config(relief="sunken")
+            self.pressed[i][j] = True
+            if i == j == 0:
+                self.direction = (self.direction - 1) % 4
+                self.setFrameTitle()
+            if i == 0 and j == 2:
+                self.direction = (self.direction + 1) % 4
+                self.setFrameTitle()
+            self.transfer()
 
     def releaseCallback(self, i, j) -> None:
         self.buttons[i][j]["fg"] = "black"
         self.buttons[i][j].config(relief="raised")
         self.pressed[i][j] = False
+        self.transfer()
 
     def setFrameTitle(self) -> None:
         directs = ("前↑", "右→", "后↓", "左←")

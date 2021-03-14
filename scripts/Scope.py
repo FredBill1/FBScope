@@ -14,8 +14,8 @@ class Scope:
         self.Config = self.main.Config["SCOPE"]
 
     def setProperty(self):
-        from tkinter import StringVar, Label as LB
-        from tkinter.ttk import Button, Combobox, Label, Frame, LabelFrame, Entry
+        from tkinter import StringVar, BooleanVar, LabelFrame as LF
+        from tkinter.ttk import Button, Combobox, Label, Frame, Entry, Checkbutton, LabelFrame
 
         self.uiFrame = Frame(self.root)
         self.startFrame = LabelFrame(self.uiFrame, text="控制")
@@ -26,11 +26,13 @@ class Scope:
         self.sampleEntry = Entry(self.startFrame, textvariable=self.sampleVar, validate="focusout", validatecommand=self.entryCallback, width=5)
         self.startButton = Button(self.startFrame, text="开始", state="disabled", command=self.toggleTransfer)
 
-        bgs = ("steel blue", "orange", "dark green", "red", "purple", "cyan", "deep pink", "gray")
+        fgs = ("steel blue", "orange", "dark green", "red", "purple", "cyan", "deep pink", "gray")
         types = ("int8", "uint8", "int16", "uint16", "int32", "uint32", "int64", "uint64", "float", "double")
-        self.lineFrames = [LabelFrame(self.uiFrame, text="第%d条线" % (i + 1)) for i in range(8)]
-        self.colorLabel = [LB(self.lineFrames[i], text="[X]", fg=bgs[i]) for i in range(8)]
-        self.typeCombobox = [Combobox(self.lineFrames[i], width=1, values=types, state="readonly") for i in range(8)]
+        self.lineFrames = [LF(self.uiFrame, fg=fgs[i], text="第%d条线" % (i + 1)) for i in range(8)]
+        self.typeCombobox = [Combobox(self.lineFrames[i], width=6, values=types, state="readonly") for i in range(8)]
+
+        self.enabled = [BooleanVar(value=True) for i in range(8)]
+        self.enableButton = [Checkbutton(self.lineFrames[i], variable=self.enabled[i]) for i in range(8)]
 
         self.imgFrame = LabelFrame(self.root, text="图像")
         self.setImg()
@@ -52,8 +54,8 @@ class Scope:
 
         for i in range(8):
             self.lineFrames[i].pack(fill="x")
-            self.colorLabel[i].pack(side="left", pady=3)
-            self.typeCombobox[i].pack(side="left", padx=3, pady=3, fill="x", expand=True)
+            self.enableButton[i].pack(side="left", padx=1, pady=3)
+            self.typeCombobox[i].pack(side="left", pady=3)
             self.typeCombobox[i].bind("<<ComboboxSelected>>", lambda event, i=i: self.typeCallback(i))
             self.typeCombobox[i].current(self.Config["TYPES"][i])
 
@@ -76,10 +78,11 @@ class Scope:
         cur = self.Config["LINES"]
         if t < cur:
             for i in range(t, cur):
-                self.typeCombobox[i]["state"] = "disabled"
+                self.enableButton[i]["state"] = self.typeCombobox[i]["state"] = "disabled"
         else:
             for i in range(cur, t):
                 self.typeCombobox[i]["state"] = "readonly"
+                self.enableButton[i]["state"] = "normal"
         self.Config["LINES"] = t
 
     def entryCallback(self):
@@ -117,7 +120,7 @@ class Scope:
             self.transfering = False
 
     def startTransfer(self):
-        from threading import Thread, Timer
+        from threading import Thread
         from collections import deque
 
         self.T = [i for i in range(self.Config["SAMPLECOUNT"])]
@@ -159,7 +162,8 @@ class Scope:
             self.ax.grid()
             self.ax.set_xlim(0, self.Config["SAMPLECOUNT"])
             for i in range(self.Config["LINES"]):
-                self.ax.plot(self.T, self.data[i], color=colors[i])
+                if self.enabled[i].get():
+                    self.ax.plot(self.T, self.data[i], color=colors[i])
             self.canvas.draw()
         self.root.after(100, self.drawData)
 
