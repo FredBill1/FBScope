@@ -58,6 +58,7 @@ class Remote:
     def toggleTransfer(self):
         if self.startButton["text"] == "启动":
             self.startButton["text"] = "停止"
+            self.speedEntry["state"] = self.turnEntry["state"] = "disabled"
             self.main.setActivate(False)
             self.main.setstate.setActivate(False)
             self.main.adrc.setActivate(False)
@@ -71,6 +72,7 @@ class Remote:
             self.transfer()
         else:
             self.startButton["text"] = "启动"
+            self.speedEntry["state"] = self.turnEntry["state"] = "normal"
             self.main.setActivate(True)
             self.main.setstate.setActivate(True)
             self.main.adrc.setActivate(True)
