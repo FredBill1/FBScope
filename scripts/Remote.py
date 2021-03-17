@@ -65,19 +65,21 @@ class Remote:
             self.main.setstate.setActivate(False)
             self.main.adrc.setActivate(False)
             for i in range(4):
-                self.main.setstate.checked[i][0].set(True)
-                self.main.setstate.checked[i][1].set(True)
-                self.main.setstate.buttons[i][0]["state"] = "disabled"
-                self.main.setstate.buttons[i][1]["state"] = "normal"
+                self.main.setstate.checked[i].set(True)
+                self.main.setstate.buttons[i]["state"] = "disabled"
+            self.main.setstate.checked[4].set(False)
+            self.main.setstate.buttons[4]["state"] = "disabled"
             self.main.setstate.uploadState()
             self.transfering = True
-            # Thread(target=self.transfer).start()
         else:
+            self.transfering = False
             self.startButton["text"] = "启动"
             self.speedEntry["state"] = self.turnEntry["state"] = "normal"
             self.main.setActivate(True)
             self.main.setstate.setActivate(True)
             self.main.adrc.setActivate(True)
+            for i in range(5):
+                self.main.setstate.buttons[i]["state"] = "normal"
             self.transfering = False
 
     def setActivate(self, activate: bool):
