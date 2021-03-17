@@ -7,7 +7,10 @@ class Scope:
         self.getConfig()
         self.setProperty()
         self.transfering = False
+        self.T = [0]
+        self.data = [[0]] * 8
         self.drawData()
+        self.drawWorker()
 
     def getConfig(self):
         self.CHECK = self.main.Config["SERIAL"]["CHECK"]
@@ -25,6 +28,8 @@ class Scope:
         self.sampleVar = StringVar(value=str(self.Config["SAMPLECOUNT"]))
         self.sampleEntry = Entry(self.startFrame, textvariable=self.sampleVar, validate="focusout", validatecommand=self.entryCallback, width=5)
         self.startButton = Button(self.startFrame, text="开始", state="disabled", command=self.toggleTransfer)
+        self.sepVar = BooleanVar(value=False)
+        self.sepButton = Checkbutton(self.startFrame, text="分行显示", variable=self.sepVar, command=self.drawData)
 
         fgs = ("steel blue", "orange", "dark green", "red", "purple", "cyan", "deep pink", "gray")
         types = ("int8", "uint8", "int16", "uint16", "int32", "uint32", "int64", "uint64", "float", "double")
@@ -50,7 +55,8 @@ class Scope:
         self.countCallback()
         self.sampleLabel.grid(row=1, column=0, padx=3, pady=3)
         self.sampleEntry.grid(row=1, column=1, padx=3, pady=3)
-        self.startButton.grid(row=2, column=0, columnspan=2, padx=3, pady=3)
+        self.sepButton.grid(row=2, column=0, columnspan=2, padx=3, pady=1, sticky="w")
+        self.startButton.grid(row=3, column=0, columnspan=2, padx=3, pady=3)
 
         for i in range(8):
             self.lineFrames[i].pack(fill="x")
@@ -66,8 +72,6 @@ class Scope:
         from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
         self.fig = Figure()
-        self.ax = self.fig.add_subplot(111)
-        self.ax.grid()
         self.canvas = FigureCanvasTkAgg(self.fig, self.imgFrame)
         self.toolbar = NavigationToolbar2Tk(self.canvas, self.imgFrame)
         self.toolbar.update()
@@ -157,15 +161,35 @@ class Scope:
 
     def drawData(self):
         colors = ("tab:blue", "tab:orange", "tab:green", "tab:red", "tab:purple", "tab:cyan", "tab:pink", "tab:gray")
-        if self.transfering:
-            self.ax.cla()
-            self.ax.grid()
-            self.ax.set_xlim(0, self.Config["SAMPLECOUNT"])
+        self.fig.clf()
+        if self.sepVar.get():
+            count = sum(self.enabled[i].get() for i in range(self.Config["LINES"]))
+            cur = 0
             for i in range(self.Config["LINES"]):
                 if self.enabled[i].get():
-                    self.ax.plot(self.T, self.data[i], color=colors[i])
-            self.canvas.draw()
-        self.root.after(100, self.drawData)
+                    cur += 1
+                    ax = self.fig.add_subplot(count, 1, cur)
+                    ax.grid()
+                    if i < len(self.data):
+                        ax.set_xlim(0, self.Config["SAMPLECOUNT"])
+                        ax.plot(self.T, self.data[i], color=colors[i])
+        else:
+            ax = self.fig.add_subplot(1, 1, 1)
+            ax.grid()
+            ax.set_xlim(0, self.Config["SAMPLECOUNT"])
+            for i in range(self.Config["LINES"]):
+                if self.enabled[i].get():
+                    if i < len(self.data):
+                        ax.plot(self.T, self.data[i], color=colors[i])
+        self.canvas.draw()
+
+    def drawWorker(self):
+        if self.transfering:
+            self.drawData()
+        if self.sepVar.get():
+            self.root.after(300, self.drawWorker)
+        else:
+            self.root.after(100, self.drawWorker)
 
     def setActivate(self, activate: bool):
         state = ("disabled", "normal")
