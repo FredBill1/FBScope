@@ -4,11 +4,11 @@ class Scope:
 
         self.main = main
         self.root = Toplevel(self.main.root)
-        self.getConfig()
-        self.setProperty()
         self.transfering = False
         self.T = [0]
         self.data = [[0]] * 8
+        self.getConfig()
+        self.setProperty()
         self.drawData()
         self.drawWorker()
 
@@ -37,7 +37,7 @@ class Scope:
         self.typeCombobox = [Combobox(self.lineFrames[i], width=6, values=types, state="readonly") for i in range(8)]
 
         self.enabled = [BooleanVar(value=True) for i in range(8)]
-        self.enableButton = [Checkbutton(self.lineFrames[i], variable=self.enabled[i]) for i in range(8)]
+        self.enableButton = [Checkbutton(self.lineFrames[i], variable=self.enabled[i], command=self.drawData) for i in range(8)]
 
         self.imgFrame = LabelFrame(self.root, text="图像")
         self.setImg()
@@ -88,6 +88,7 @@ class Scope:
                 self.typeCombobox[i]["state"] = "readonly"
                 self.enableButton[i]["state"] = "normal"
         self.Config["LINES"] = t
+        self.drawData()
 
     def entryCallback(self):
         try:
@@ -187,7 +188,7 @@ class Scope:
         if self.transfering:
             self.drawData()
         if self.sepVar.get():
-            self.root.after(300, self.drawWorker)
+            self.root.after(200, self.drawWorker)
         else:
             self.root.after(100, self.drawWorker)
 
