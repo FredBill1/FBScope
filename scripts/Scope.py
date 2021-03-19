@@ -171,8 +171,8 @@ class Scope:
                     cur += 1
                     ax = self.fig.add_subplot(count, 1, cur)
                     ax.grid()
+                    ax.set_xlim(0, self.Config["SAMPLECOUNT"])
                     if i < len(self.data):
-                        ax.set_xlim(0, self.Config["SAMPLECOUNT"])
                         ax.plot(self.T, self.data[i], color=colors[i])
         else:
             ax = self.fig.add_subplot(1, 1, 1)
