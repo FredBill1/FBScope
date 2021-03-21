@@ -64,11 +64,9 @@ class Remote:
             self.main.setActivate(False)
             self.main.setstate.setActivate(False)
             self.main.adrc.setActivate(False)
-            for i in range(4):
+            for i in range(5):
                 self.main.setstate.checked[i].set(True)
                 self.main.setstate.buttons[i]["state"] = "disabled"
-            self.main.setstate.checked[4].set(False)
-            self.main.setstate.buttons[4]["state"] = "disabled"
             self.main.setstate.uploadState()
             self.transfering = True
         else:
