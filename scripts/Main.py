@@ -22,6 +22,7 @@ class Main:
         self.setProperty()
         self.getPorts()
         self.activate = 0
+        self.mainloop = self.root.mainloop
 
     def setProperty(self) -> None:
         from tkinter.ttk import LabelFrame, Combobox, Button
@@ -105,9 +106,6 @@ class Main:
         self.portCombobox["state"] = self.refreshButton["state"] = self.activateButton["state"] = state[self.activate == 0]
         if activate:
             self.getPorts()
-
-    def mainloop(self):
-        self.root.mainloop()
 
     def __onClose(self):
         if self.activateButton["text"] == "连接":
