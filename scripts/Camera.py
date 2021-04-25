@@ -82,7 +82,7 @@ class Camera:
         from PIL.ImageTk import PhotoImage
 
         img = resize(self.img, (0, 0), fx=self.ZOOM, fy=self.ZOOM, interpolation=INTER_NEAREST)
-        self.imgTk = PhotoImage(image=Image.fromarray(img))
+        self.imgTk = PhotoImage(master=self.imgCanvas, image=Image.fromarray(img))
         self.imgCanvas.create_image(0, 0, anchor="nw", image=self.imgTk)
 
     def shotImg(self):
