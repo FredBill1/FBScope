@@ -97,11 +97,11 @@ class ADRC:
         names = ["AdrcMatL1", "AdrcMatL2", "AdrcMatR1", "AdrcMatR2", "AdrcMatTurn"]
         try:
             with open(self.dirStr.get() + "\ADRCMat.cpp", "w") as f:
-                f.write("typedef unsigned long long uint64;  // clang-format off")
+                f.write('#include "initSettings.h"\ntypedef unsigned long long uint64;  // clang-format off')
                 for name, li in zip(names, self.Config):
                     tmp = ADRCgetMat(*li).tobytes().hex(" ", 8).split()
                     tmp = ["".join(a[i : i + 2] for i in range(14, -1, -2)) for a in tmp]
-                    f.write("\nuint64 " + name + "[18]{0x" + ",0x".join(tmp) + "};")
+                    f.write("\nextern __ADJUSTABLE_E uint64 " + name + "[18]{0x" + ",0x".join(tmp) + "};")
             self.main.Config["ADRC"]["DIR"] = self.dirStr.get()
         except:
             self.dirStr.set("地址无效")
