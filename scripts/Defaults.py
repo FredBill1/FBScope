@@ -8,7 +8,6 @@ CHECK = b"\x00\xff\x01\x01"
 HEIGHT = 60
 WIDTH = 80
 ZOOM = 6
-IMGDIR = "D:\\CarImg\\"
 
 
 # ADRC
@@ -39,5 +38,9 @@ CARSPEED = 300
 TURNSPEED = 200
 
 
+# PATROL
+SETPARAMS = b"\x06"
+PARAMS = [500.0, -100.0, 124.0, 40.0]
+
 # MANAGER
-WINDOWON = [0, 0, 0, 0, 0]
+WINDOWON = [0, 0, 0, 0, 0, 0]

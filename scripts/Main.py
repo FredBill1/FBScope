@@ -7,6 +7,7 @@ class Main:
         from .SetState import SetState
         from .Scope import Scope
         from .Remote import Remote
+        from .Patrol import Patrol
         from .Manager import Manager
 
         self.Config = Config
@@ -18,6 +19,7 @@ class Main:
         self.setstate = SetState(self)
         self.scope = Scope(self)
         self.remote = Remote(self)
+        self.patrol = Patrol(self)
         self.manager = Manager(self)
         self.setProperty()
         self.getPorts()
@@ -72,7 +74,7 @@ class Main:
         self.portCombobox.current(li.index(last) if last in li else 0)
 
     def toggleConnection(self):
-        if self.activateButton["text"] == "连接":
+        if self.activateButton["text"] == "连接" and self.startCOM():
             self.activateButton["text"] = "断开"
             self.portCombobox["state"] = self.refreshButton["state"] = self.quitButton["state"] = "disabled"
             self.camera.setActivate(True)
@@ -80,7 +82,7 @@ class Main:
             self.setstate.setActivate(True)
             self.scope.setActivate(True)
             self.remote.setActivate(True)
-            self.startCOM()
+            self.patrol.setActivate(True)
         else:
             self.activateButton["text"] = "连接"
             self.portCombobox["state"] = self.refreshButton["state"] = self.quitButton["state"] = "normal"
@@ -89,16 +91,18 @@ class Main:
             self.setstate.setActivate(False)
             self.scope.setActivate(False)
             self.remote.setActivate(False)
+            self.patrol.setActivate(False)
             self.serial.close()
 
     def startCOM(self):
         self.serial.port = self.portCombobox.get().split()[0]
         try:
             self.serial.open()
+            return True
         except:
             self.getPorts()
             self.toggleConnection()
-            return
+            return False
 
     def setActivate(self, activate: bool):
         self.activate += 1 if activate else -1

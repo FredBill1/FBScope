@@ -18,7 +18,7 @@ def getConfig(dir):
     CAMERA["HEIGHT"] = int(CAMERA["HEIGHT"]) if "HEIGHT" in CAMERA else Defaults.HEIGHT
     CAMERA["WIDTH"] = int(CAMERA["WIDTH"]) if "WIDTH" in CAMERA else Defaults.WIDTH
     CAMERA["ZOOM"] = int(CAMERA["ZOOM"]) if "ZOOM" in CAMERA else Defaults.ZOOM
-    CAMERA["DIR"] = CAMERA["DIR"] if "DIR" in CAMERA else Defaults.IMGDIR
+    CAMERA["DIR"] = CAMERA["DIR"] if "DIR" in CAMERA else dir + "img\\"
     if CAMERA["DIR"][-1] not in "/\\":
         CAMERA["DIR"] += "\\"
 
@@ -54,6 +54,12 @@ def getConfig(dir):
     REMOTE["CHECK"] = eval(REMOTE["CHECK"]) if "CHECK" in REMOTE else Defaults.REMOTECHECK
     REMOTE["SPEED"] = int(REMOTE["SPEED"]) if "SPEED" in REMOTE else Defaults.CARSPEED
     REMOTE["TURN"] = int(REMOTE["TURN"]) if "TURN" in REMOTE else Defaults.TURNSPEED
+
+    if "PATROL" not in Config:
+        Config["PATROL"] = {}
+    PATROL = Config["PATROL"]
+    PATROL["SETPARAMS"] = eval(PATROL["SETPARAMS"]) if "SETPARAMS" in PATROL else Defaults.SETPARAMS
+    PATROL["PARAMS"] = [float(v) for v in PATROL["PARAMS"]] if "PARAMS" in PATROL else Defaults.PARAMS
 
     if "MANAGER" not in Config:
         Config["MANAGER"] = {}

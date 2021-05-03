@@ -75,10 +75,10 @@ class SetState:
         state = ("disabled", "normal")
         self.stateButton["state"] = self.resetButton["state"] = self.speedButton["state"] = self.pwmButton["state"] = state[activate]
 
-    def uploadState(self):
+    def uploadState(self, patrol: bool = False):
         if self.stateButton["state"] == "disabled":
             return
-        state = 0
+        state = patrol << 5
         for i in range(5):
             state |= self.checked[i].get() << i
         self.main.write(self.CHECK + bytes([state]))
@@ -92,7 +92,6 @@ class SetState:
 
     def uploadSpeed(self):
         if self.speedButton["state"] == "disabled" or not self.entryCallback(self.speedVar):
-            print("asdf")
             return
         i = self.motorCombobox.current()
         self.checked[i].set(True)
