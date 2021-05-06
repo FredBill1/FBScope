@@ -97,7 +97,7 @@ class Remote:
 
     def transfer(self) -> None:
         if self.transfering:
-            turn = 0 if self.pressed[1][0] == self.pressed[1][2] else -self.Config["TURN"] if (self.pressed[1][0] ^ self.pressed[1][1]) else self.Config["TURN"]
+            turn = 0 if self.pressed[1][0] == self.pressed[1][2] else -self.Config["TURN"] if self.pressed[1][0] else self.Config["TURN"]
             speed = 0 if self.pressed[0][1] == self.pressed[1][1] else self.Config["SPEED"] if self.pressed[0][1] else -self.Config["SPEED"]
             self.main.write(self.Config["CHECK"] + bytes([self.direction]) + speed.to_bytes(2, "little", signed=True) + turn.to_bytes(2, "little", signed=True))
 

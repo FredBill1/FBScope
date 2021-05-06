@@ -102,6 +102,6 @@ class SetState:
         if self.pwmButton["state"] == "disabled" or not self.entryCallback(self.pwmVar):
             return
         i = self.motorCombobox.current()
-        self.checked[i].set(i == 4)
+        self.checked[i].set(False)
         self.uploadState()
         self.main.write(self.PWM + bytes([i]) + int(self.pwmVar.get()).to_bytes(2, "little", signed=True))
