@@ -56,8 +56,6 @@ class Remote:
                 self.root.bind("<KeyRelease-%s>" % keys[i][j], lambda event, i=i, j=j: self.releaseCallback(i, j))
 
     def toggleTransfer(self):
-        from threading import Thread
-
         if self.startButton["text"] == "启动":
             self.startButton["text"] = "停止"
             self.speedEntry["state"] = self.turnEntry["state"] = "disabled"
@@ -65,7 +63,7 @@ class Remote:
             self.main.setstate.setActivate(False)
             self.main.adrc.setActivate(False)
             for i in range(5):
-                self.main.setstate.checked[i].set(True)
+                self.main.setstate.checked[i].set(i != 4)
                 self.main.setstate.buttons[i]["state"] = "disabled"
             self.main.setstate.uploadState()
             self.transfering = True

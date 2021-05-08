@@ -19,7 +19,7 @@ class Patrol:
         from tkinter import StringVar
         from tkinter.ttk import Button, LabelFrame, Label, Entry
 
-        names = ("Kα", "Kβ", "PI", "DIST")
+        names = ("KP", "KD", "PI", "DIST")
         self.paramFrame = LabelFrame(self.root, text="参数")
         self.paramLabels = [Label(self.paramFrame, text=names[i]) for i in range(len(names))]
         self.paramVars = [StringVar(value=str(self.PARAMS[i])) for i in range(len(names))]
@@ -83,7 +83,7 @@ class Patrol:
         for i in range(5):
             self.main.setstate.checked[i].set(True)
         self.main.write(self.main.setstate.PWM + b"\x04" + int(self.speedVar.get()).to_bytes(2, "little", signed=True))
-        self.main.setstate.uploadState(True)
+        self.main.setstate.uploadState()
 
     def reset(self):
         if self.enabled:

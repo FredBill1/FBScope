@@ -29,7 +29,6 @@ def getConfig(dir):
     ADRC["L2"] = [float(v) for v in ADRC["L2"]] if "L2" in ADRC else Defaults.ADRCL2
     ADRC["R1"] = [float(v) for v in ADRC["R1"]] if "R1" in ADRC else Defaults.ADRCR1
     ADRC["R2"] = [float(v) for v in ADRC["R2"]] if "R2" in ADRC else Defaults.ADRCR2
-    ADRC["TURN"] = [float(v) for v in ADRC["TURN"]] if "TURN" in ADRC else Defaults.ADRCTURN
     ADRC["HEAD"] = eval(ADRC["HEAD"]) if "HEAD" in ADRC else Defaults.ADRCHEAD
     ADRC["DIR"] = ADRC["DIR"] if "DIR" in ADRC else dir
 

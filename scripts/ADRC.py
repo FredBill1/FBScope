@@ -31,14 +31,15 @@ class ADRC:
         from tkinter import Canvas, StringVar
         from tkinter.ttk import LabelFrame, Button, Label, Entry
 
-        names = ("L1", "L2", "R1", "R2", "TURN")
+        # names = ("L1", "L2", "R1", "R2", "TURN")
+        names = ("L1", "L2", "R1", "R2")
         texts = ("ωo:", "ωc:", "b0:", "dt:")
 
-        self.frames = [LabelFrame(self.root, text=names[i]) for i in range(5)]
-        self.texts = [[Label(self.frames[i], text=texts[j]) for j in range(4)] for i in range(5)]
-        self.strings = [[StringVar() for j in range(4)] for i in range(5)]
-        self.entries = [[Entry(self.frames[i], textvariable=self.strings[i][j], validate="focusout", validatecommand=lambda i=i, j=j: self.entryCallback(i, j), width=10,) for j in range(4)] for i in range(5)]
-        self.uploadButtons = [Button(self.frames[i], text="上传", state="disabled", command=lambda i=i: self.upload(i)) for i in range(5)]
+        self.frames = [LabelFrame(self.root, text=names[i]) for i in range(len(names))]
+        self.texts = [[Label(self.frames[i], text=texts[j]) for j in range(4)] for i in range(len(names))]
+        self.strings = [[StringVar() for j in range(4)] for i in range(len(names))]
+        self.entries = [[Entry(self.frames[i], textvariable=self.strings[i][j], validate="focusout", validatecommand=lambda i=i, j=j: self.entryCallback(i, j), width=10,) for j in range(4)] for i in range(len(names))]
+        self.uploadButtons = [Button(self.frames[i], text="上传", state="disabled", command=lambda i=i: self.upload(i)) for i in range(len(names))]
         self.saveButton = Button(self.root, text="存入cpp", command=self.generate, width=8)
         self.dirStr = StringVar()
         self.dirEntry = Entry(self.root, textvariable=self.dirStr)
@@ -48,7 +49,7 @@ class ADRC:
         self.root.resizable(False, False)
         self.root.protocol("WM_DELETE_WINDOW", lambda: None)
 
-        for i in range(5):
+        for i in range(len(names)):
             self.frames[i].pack(padx=3)
             for j in range(4):
                 self.texts[i][j].pack(side="left")
@@ -63,14 +64,15 @@ class ADRC:
         self.setConfig()
 
     def getConfig(self):
-        keys = ("L1", "L2", "R1", "R2", "TURN")
+        # keys = ("L1", "L2", "R1", "R2", "TURN")
+        keys = ("L1", "L2", "R1", "R2")
         self.main.Config
         self.Config = [self.main.Config["ADRC"][key] for key in keys]
         self.HEAD = self.main.Config["ADRC"]["HEAD"]
         self.dirStr.set(self.main.Config["ADRC"]["DIR"])
 
     def setConfig(self):
-        for i in range(5):
+        for i in range(len(self.frames)):
             for j in range(4):
                 self.strings[i][j].set(str(self.Config[i][j]))
 
@@ -94,7 +96,8 @@ class ADRC:
             self.dirStr.set(dirGet)
 
     def generate(self):
-        names = ["AdrcMatL1", "AdrcMatL2", "AdrcMatR1", "AdrcMatR2", "AdrcMatTurn"]
+        # names = ["AdrcMatL1", "AdrcMatL2", "AdrcMatR1", "AdrcMatR2", "AdrcMatTurn"]
+        names = ["AdrcMatL1", "AdrcMatL2", "AdrcMatR1", "AdrcMatR2"]
         try:
             with open(self.dirStr.get() + "\ADRCMat.cpp", "w") as f:
                 f.write('#include "initSettings.h"\ntypedef unsigned long long uint64;  // clang-format off')
