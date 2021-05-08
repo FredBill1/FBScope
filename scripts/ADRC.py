@@ -104,7 +104,7 @@ class ADRC:
                 for name, li in zip(names, self.Config):
                     tmp = ADRCgetMat(*li).tobytes().hex(" ", 8).split()
                     tmp = ["".join(a[i : i + 2] for i in range(14, -1, -2)) for a in tmp]
-                    f.write("\nextern __ADJUSTABLE_E uint64 " + name + "[18]{0x" + ",0x".join(tmp) + "};")
+                    f.write("\n__ADJUSTABLE_E uint64 " + name + "[18]{0x" + ",0x".join(tmp) + "};")
             self.main.Config["ADRC"]["DIR"] = self.dirStr.get()
         except:
             self.dirStr.set("地址无效")

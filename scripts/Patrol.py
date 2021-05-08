@@ -19,7 +19,7 @@ class Patrol:
         from tkinter import StringVar
         from tkinter.ttk import Button, LabelFrame, Label, Entry
 
-        names = ("KP", "KD", "PI", "DIST")
+        names = ("KP", "KD", "X0", "R")
         self.paramFrame = LabelFrame(self.root, text="参数")
         self.paramLabels = [Label(self.paramFrame, text=names[i]) for i in range(len(names))]
         self.paramVars = [StringVar(value=str(self.PARAMS[i])) for i in range(len(names))]
