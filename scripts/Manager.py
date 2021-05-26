@@ -27,6 +27,9 @@ class Manager:
         self.root.attributes("-toolwindow", True)
         self.root.protocol("WM_DELETE_WINDOW", lambda: None)
 
+        if "Manager" in self.main.Config["WINDOWPOSITION"]:
+            self.root.geometry(self.main.Config["WINDOWPOSITION"]["Manager"])
+
         for i in range(len(titles)):
             self.buttons[i].pack(padx=3, pady=3)
             self.applyVisibility(i)

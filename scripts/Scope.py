@@ -1,5 +1,8 @@
+from .Main import Main
+
+
 class Scope:
-    def __init__(self, main) -> None:
+    def __init__(self, main: Main) -> None:
         from tkinter import Toplevel
 
         self.main = main
@@ -66,6 +69,9 @@ class Scope:
             self.typeCombobox[i].current(self.Config["TYPES"][i])
 
         self.imgFrame.pack(side="left", padx=3, pady=3, fill="both", expand=True)
+
+        if "Scope" in self.main.Config["WINDOWPOSITION"]:
+            self.root.geometry(self.main.Config["WINDOWPOSITION"]["Scope"])
 
     def setImg(self):
         from matplotlib.figure import Figure

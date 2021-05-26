@@ -55,6 +55,9 @@ class Remote:
                 self.root.bind("<%s>" % keys[i][j], lambda event, i=i, j=j: self.pressCallback(i, j))
                 self.root.bind("<KeyRelease-%s>" % keys[i][j], lambda event, i=i, j=j: self.releaseCallback(i, j))
 
+        if "Remote" in self.main.Config["WINDOWPOSITION"]:
+            self.root.geometry(self.main.Config["WINDOWPOSITION"]["Remote"])
+
     def toggleTransfer(self):
         if self.startButton["text"] == "启动":
             self.startButton["text"] = "停止"

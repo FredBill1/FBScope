@@ -58,12 +58,16 @@ def getConfig(dir):
         Config["PATROL"] = {}
     PATROL = Config["PATROL"]
     PATROL["SETPARAMS"] = eval(PATROL["SETPARAMS"]) if "SETPARAMS" in PATROL else Defaults.SETPARAMS
-    PATROL["PARAMS"] = [float(v) for v in PATROL["PARAMS"]] if "PARAMS" in PATROL else Defaults.PARAMS
+    PATROL["NAMES"] = PATROL["NAMES"] if "NAMES" in PATROL else Defaults.PATROLNAMES
+    PATROL["PARAMS"] = [float(v) for v in PATROL["PARAMS"]] if "PARAMS" in PATROL else [0.0] * len(PATROL["PARAMS"])
 
     if "MANAGER" not in Config:
         Config["MANAGER"] = {}
     MANAGER = Config["MANAGER"]
     MANAGER["WINDOWON"] = [int(v) for v in MANAGER["WINDOWON"]] if "WINDOWON" in MANAGER else Defaults.WINDOWON
+
+    if "WINDOWPOSITION" not in Config:
+        Config["WINDOWPOSITION"] = {}
 
     Config.write()
     return Config

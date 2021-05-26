@@ -46,6 +46,9 @@ class Main:
         self.activateButton.grid(row=1, column=1, padx=3, pady=3)
         self.quitButton.grid(row=1, column=2, padx=3, pady=3)
 
+        if "Main" in self.Config["WINDOWPOSITION"]:
+            self.root.geometry(self.Config["WINDOWPOSITION"]["Main"])
+
     def read(self):
         try:
             return self.serial.read()
@@ -113,6 +116,14 @@ class Main:
 
     def __onClose(self):
         if self.activateButton["text"] == "连接":
+            self.Config["WINDOWPOSITION"]["Main"] = self.root.geometry()
+            self.Config["WINDOWPOSITION"]["Camera"] = self.camera.root.geometry()
+            self.Config["WINDOWPOSITION"]["ADRC"] = self.adrc.root.geometry()
+            self.Config["WINDOWPOSITION"]["SetState"] = self.setstate.root.geometry()
+            self.Config["WINDOWPOSITION"]["Scope"] = self.scope.root.geometry()
+            self.Config["WINDOWPOSITION"]["Remote"] = self.remote.root.geometry()
+            self.Config["WINDOWPOSITION"]["Patrol"] = self.patrol.root.geometry()
+            self.Config["WINDOWPOSITION"]["Manager"] = self.manager.root.geometry()
             self.Config.write()
             quit()
 

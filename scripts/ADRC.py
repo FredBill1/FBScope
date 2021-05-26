@@ -1,3 +1,6 @@
+from .Main import Main
+
+
 def ADRCgetMat(wo, wc, b0, dt):
     from numpy import mat, float64, concatenate, array, zeros
     from scipy.linalg import expm
@@ -20,7 +23,7 @@ def ADRCgetMat(wo, wc, b0, dt):
 
 
 class ADRC:
-    def __init__(self, main) -> None:
+    def __init__(self, main: Main) -> None:
         from tkinter import Toplevel
 
         self.main = main
@@ -28,7 +31,7 @@ class ADRC:
         self.setProperty()
 
     def setProperty(self) -> None:
-        from tkinter import Canvas, StringVar
+        from tkinter import StringVar
         from tkinter.ttk import LabelFrame, Button, Label, Entry
 
         # names = ("L1", "L2", "R1", "R2", "TURN")
@@ -62,6 +65,9 @@ class ADRC:
 
         self.getConfig()
         self.setConfig()
+
+        if "ADRC" in self.main.Config["WINDOWPOSITION"]:
+            self.root.geometry(self.main.Config["WINDOWPOSITION"]["ADRC"])
 
     def getConfig(self):
         # keys = ("L1", "L2", "R1", "R2", "TURN")

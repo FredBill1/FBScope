@@ -1,5 +1,8 @@
+from .Main import Main
+
+
 class SetState:
-    def __init__(self, main) -> None:
+    def __init__(self, main: Main) -> None:
         from tkinter import Toplevel
 
         self.main = main
@@ -60,6 +63,9 @@ class SetState:
         self.speedButton.grid(row=3, column=0, columnspan=2, padx=3, pady=1)
         self.pwmButton.grid(row=4, column=0, columnspan=2, padx=3, pady=1)
         self.resetButton.grid(row=5, column=0, columnspan=2, padx=3, pady=1)
+
+        if "SetState" in self.main.Config["WINDOWPOSITION"]:
+            self.root.geometry(self.main.Config["WINDOWPOSITION"]["SetState"])
 
     def entryCallback(self, sv):
         try:

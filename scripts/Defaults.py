@@ -39,7 +39,7 @@ TURNSPEED = 200
 
 # PATROL
 SETPARAMS = b"\x06"
-PARAMS = [500.0, -100.0, 10.0, 40.0]
+PATROLNAMES = ["icmKP", "icmKI", "icmKD", "turnKP", "turnKD", "X0", "kTurn"]
 
 # MANAGER
 WINDOWON = [0, 0, 0, 0, 0, 0]

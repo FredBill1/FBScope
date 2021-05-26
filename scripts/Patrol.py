@@ -14,16 +14,18 @@ class Patrol:
     def getConfig(self):
         self.SETPARAMS = self.main.Config["PATROL"]["SETPARAMS"]
         self.PARAMS = self.main.Config["PATROL"]["PARAMS"]
+        self.NAMES = self.main.Config["PATROL"]["NAMES"]
+        if len(self.NAMES) > len(self.PARAMS):
+            self.PARAMS += [0.0] * (len(self.NAMES) - len(self.PARAMS))
 
     def setProperty(self):
         from tkinter import StringVar
         from tkinter.ttk import Button, LabelFrame, Label, Entry
 
-        names = ("KP", "KD", "X0", "R")
         self.paramFrame = LabelFrame(self.root, text="参数")
-        self.paramLabels = [Label(self.paramFrame, text=names[i]) for i in range(len(names))]
-        self.paramVars = [StringVar(value=str(self.PARAMS[i])) for i in range(len(names))]
-        self.paramEntries = [Entry(self.paramFrame, textvariable=self.paramVars[i], validate="focusout", validatecommand=lambda i=i: self.paramCallback(i), width=8) for i in range(len(names))]
+        self.paramLabels = [Label(self.paramFrame, text=self.NAMES[i]) for i in range(len(self.NAMES))]
+        self.paramVars = [StringVar(value=str(self.PARAMS[i])) for i in range(len(self.NAMES))]
+        self.paramEntries = [Entry(self.paramFrame, textvariable=self.paramVars[i], validate="focusout", validatecommand=lambda i=i: self.paramCallback(i), width=8) for i in range(len(self.NAMES))]
 
         self.controlFrame = LabelFrame(self.root, text="控制")
         self.speedLabel = Label(self.controlFrame, text="速度")
@@ -34,7 +36,7 @@ class Patrol:
         self.resetButton = Button(self.controlFrame, text="重置", state="disabled", command=self.reset)
 
         self.paramFrame.pack(side="left", padx=3, pady=3)
-        for i in range(len(names)):
+        for i in range(len(self.NAMES)):
             self.paramLabels[i].grid(row=i, column=0, padx=3, pady=3)
             self.paramEntries[i].grid(row=i, column=1, padx=3, pady=3)
 
@@ -51,6 +53,9 @@ class Patrol:
         self.root.attributes("-toolwindow", True)
         self.root.protocol("WM_DELETE_WINDOW", lambda: None)
         self.root.bind("<space>", lambda e: self.reset())
+
+        if "Patrol" in self.main.Config["WINDOWPOSITION"]:
+            self.root.geometry(self.main.Config["WINDOWPOSITION"]["Patrol"])
 
     def paramCallback(self, i):
         try:
