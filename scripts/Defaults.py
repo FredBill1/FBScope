@@ -11,12 +11,11 @@ ZOOM = 6
 
 
 # ADRC
-ADRCL1 = [40.0, 40.0, 40.0, 0.002]
-ADRCL2 = [40.0, 40.0, 40.0, 0.002]
-ADRCR1 = [40.0, 40.0, 40.0, 0.002]
-ADRCR2 = [40.0, 40.0, 40.0, 0.002]
-ADRCTURN = [40.0, 40.0, 40.0, 0.002]
 ADRCHEAD = b"\x02"
+
+
+# PID
+PIDHEAD = b"\x07"
 
 
 # SETSTATE
@@ -40,7 +39,7 @@ TURNSPEED = 200
 
 # PATROL
 SETPARAMS = b"\x06"
-PARAMS = [500.0, -100.0, 124.0, 40.0]
+PATROLNAMES = ["icmKP", "icmKI", "icmKD", "turnKP", "turnKD", "X0", "kTurn"]
 
 # MANAGER
-WINDOWON = [0, 0, 0, 0, 0, 0]
+WINDOWON = [0, 0, 0, 0, 0, 0, 0]

@@ -55,17 +55,19 @@ class Remote:
                 self.root.bind("<%s>" % keys[i][j], lambda event, i=i, j=j: self.pressCallback(i, j))
                 self.root.bind("<KeyRelease-%s>" % keys[i][j], lambda event, i=i, j=j: self.releaseCallback(i, j))
 
-    def toggleTransfer(self):
-        from threading import Thread
+        if "Remote" in self.main.Config["WINDOWPOSITION"]:
+            self.root.geometry(self.main.Config["WINDOWPOSITION"]["Remote"])
 
+    def toggleTransfer(self):
         if self.startButton["text"] == "启动":
             self.startButton["text"] = "停止"
             self.speedEntry["state"] = self.turnEntry["state"] = "disabled"
             self.main.setActivate(False)
             self.main.setstate.setActivate(False)
             self.main.adrc.setActivate(False)
+            self.main.patrol.setActivate(False)
             for i in range(5):
-                self.main.setstate.checked[i].set(True)
+                self.main.setstate.checked[i].set(i != 4)
                 self.main.setstate.buttons[i]["state"] = "disabled"
             self.main.setstate.uploadState()
             self.transfering = True
@@ -76,6 +78,7 @@ class Remote:
             self.main.setActivate(True)
             self.main.setstate.setActivate(True)
             self.main.adrc.setActivate(True)
+            self.main.patrol.setActivate(True)
             for i in range(5):
                 self.main.setstate.buttons[i]["state"] = "normal"
             self.transfering = False

@@ -1,3 +1,6 @@
+from .Main import Main
+
+
 def ADRCgetMat(wo, wc, b0, dt):
     from numpy import mat, float64, concatenate, array, zeros
     from scipy.linalg import expm
@@ -20,7 +23,7 @@ def ADRCgetMat(wo, wc, b0, dt):
 
 
 class ADRC:
-    def __init__(self, main) -> None:
+    def __init__(self, main: Main) -> None:
         from tkinter import Toplevel
 
         self.main = main
@@ -28,17 +31,18 @@ class ADRC:
         self.setProperty()
 
     def setProperty(self) -> None:
-        from tkinter import Canvas, StringVar
+        from tkinter import StringVar
         from tkinter.ttk import LabelFrame, Button, Label, Entry
 
-        names = ("L1", "L2", "R1", "R2", "TURN")
+        # names = ("L1", "L2", "R1", "R2", "TURN")
+        names = ("L1", "L2", "R1", "R2")
         texts = ("ωo:", "ωc:", "b0:", "dt:")
 
-        self.frames = [LabelFrame(self.root, text=names[i]) for i in range(5)]
-        self.texts = [[Label(self.frames[i], text=texts[j]) for j in range(4)] for i in range(5)]
-        self.strings = [[StringVar() for j in range(4)] for i in range(5)]
-        self.entries = [[Entry(self.frames[i], textvariable=self.strings[i][j], validate="focusout", validatecommand=lambda i=i, j=j: self.entryCallback(i, j), width=10,) for j in range(4)] for i in range(5)]
-        self.uploadButtons = [Button(self.frames[i], text="上传", state="disabled", command=lambda i=i: self.upload(i)) for i in range(5)]
+        self.frames = [LabelFrame(self.root, text=names[i]) for i in range(len(names))]
+        self.texts = [[Label(self.frames[i], text=texts[j]) for j in range(4)] for i in range(len(names))]
+        self.strings = [[StringVar() for j in range(4)] for i in range(len(names))]
+        self.entries = [[Entry(self.frames[i], textvariable=self.strings[i][j], validate="focusout", validatecommand=lambda i=i, j=j: self.entryCallback(i, j), width=10,) for j in range(4)] for i in range(len(names))]
+        self.uploadButtons = [Button(self.frames[i], text="上传", state="disabled", command=lambda i=i: self.upload(i)) for i in range(len(names))]
         self.saveButton = Button(self.root, text="存入cpp", command=self.generate, width=8)
         self.dirStr = StringVar()
         self.dirEntry = Entry(self.root, textvariable=self.dirStr)
@@ -48,7 +52,7 @@ class ADRC:
         self.root.resizable(False, False)
         self.root.protocol("WM_DELETE_WINDOW", lambda: None)
 
-        for i in range(5):
+        for i in range(len(names)):
             self.frames[i].pack(padx=3)
             for j in range(4):
                 self.texts[i][j].pack(side="left")
@@ -62,15 +66,18 @@ class ADRC:
         self.getConfig()
         self.setConfig()
 
+        if "ADRC" in self.main.Config["WINDOWPOSITION"]:
+            self.root.geometry(self.main.Config["WINDOWPOSITION"]["ADRC"])
+
     def getConfig(self):
-        keys = ("L1", "L2", "R1", "R2", "TURN")
-        self.main.Config
+        # keys = ("L1", "L2", "R1", "R2", "TURN")
+        keys = ("L1", "L2", "R1", "R2")
         self.Config = [self.main.Config["ADRC"][key] for key in keys]
         self.HEAD = self.main.Config["ADRC"]["HEAD"]
         self.dirStr.set(self.main.Config["ADRC"]["DIR"])
 
     def setConfig(self):
-        for i in range(5):
+        for i in range(len(self.frames)):
             for j in range(4):
                 self.strings[i][j].set(str(self.Config[i][j]))
 
@@ -94,14 +101,15 @@ class ADRC:
             self.dirStr.set(dirGet)
 
     def generate(self):
-        names = ["AdrcMatL1", "AdrcMatL2", "AdrcMatR1", "AdrcMatR2", "AdrcMatTurn"]
+        # names = ["AdrcMatL1", "AdrcMatL2", "AdrcMatR1", "AdrcMatR2", "AdrcMatTurn"]
+        names = ["AdrcMatL1", "AdrcMatL2", "AdrcMatR1", "AdrcMatR2"]
         try:
             with open(self.dirStr.get() + "\ADRCMat.cpp", "w") as f:
                 f.write('#include "initSettings.h"\ntypedef unsigned long long uint64;  // clang-format off')
                 for name, li in zip(names, self.Config):
                     tmp = ADRCgetMat(*li).tobytes().hex(" ", 8).split()
                     tmp = ["".join(a[i : i + 2] for i in range(14, -1, -2)) for a in tmp]
-                    f.write("\nextern __ADJUSTABLE_E uint64 " + name + "[18]{0x" + ",0x".join(tmp) + "};")
+                    f.write("\n__ADJUSTABLE_E uint64 " + name + "[18]{0x" + ",0x".join(tmp) + "};")
             self.main.Config["ADRC"]["DIR"] = self.dirStr.get()
         except:
             self.dirStr.set("地址无效")

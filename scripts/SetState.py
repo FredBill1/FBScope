@@ -1,5 +1,8 @@
+from .Main import Main
+
+
 class SetState:
-    def __init__(self, main) -> None:
+    def __init__(self, main: Main) -> None:
         from tkinter import Toplevel
 
         self.main = main
@@ -61,6 +64,9 @@ class SetState:
         self.pwmButton.grid(row=4, column=0, columnspan=2, padx=3, pady=1)
         self.resetButton.grid(row=5, column=0, columnspan=2, padx=3, pady=1)
 
+        if "SetState" in self.main.Config["WINDOWPOSITION"]:
+            self.root.geometry(self.main.Config["WINDOWPOSITION"]["SetState"])
+
     def entryCallback(self, sv):
         try:
             t = int(sv.get())
@@ -75,10 +81,10 @@ class SetState:
         state = ("disabled", "normal")
         self.stateButton["state"] = self.resetButton["state"] = self.speedButton["state"] = self.pwmButton["state"] = state[activate]
 
-    def uploadState(self, patrol: bool = False):
+    def uploadState(self):
         if self.stateButton["state"] == "disabled":
             return
-        state = patrol << 5
+        state = 0
         for i in range(5):
             state |= self.checked[i].get() << i
         self.main.write(self.CHECK + bytes([state]))
@@ -94,7 +100,7 @@ class SetState:
         if self.speedButton["state"] == "disabled" or not self.entryCallback(self.speedVar):
             return
         i = self.motorCombobox.current()
-        self.checked[i].set(True)
+        self.checked[i].set(i != 4)
         self.uploadState()
         self.main.write(self.SPEED + bytes([i]) + int(self.speedVar.get()).to_bytes(2, "little", signed=True))
 

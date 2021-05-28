@@ -25,13 +25,21 @@ def getConfig(dir):
     if "ADRC" not in Config:
         Config["ADRC"] = {}
     ADRC = Config["ADRC"]
-    ADRC["L1"] = [float(v) for v in ADRC["L1"]] if "L1" in ADRC else Defaults.ADRCL1
-    ADRC["L2"] = [float(v) for v in ADRC["L2"]] if "L2" in ADRC else Defaults.ADRCL2
-    ADRC["R1"] = [float(v) for v in ADRC["R1"]] if "R1" in ADRC else Defaults.ADRCR1
-    ADRC["R2"] = [float(v) for v in ADRC["R2"]] if "R2" in ADRC else Defaults.ADRCR2
-    ADRC["TURN"] = [float(v) for v in ADRC["TURN"]] if "TURN" in ADRC else Defaults.ADRCTURN
+    ADRC["L1"] = [float(v) for v in ADRC["L1"]] if "L1" in ADRC else [0.0] * 4
+    ADRC["L2"] = [float(v) for v in ADRC["L2"]] if "L2" in ADRC else [0.0] * 4
+    ADRC["R1"] = [float(v) for v in ADRC["R1"]] if "R1" in ADRC else [0.0] * 4
+    ADRC["R2"] = [float(v) for v in ADRC["R2"]] if "R2" in ADRC else [0.0] * 4
     ADRC["HEAD"] = eval(ADRC["HEAD"]) if "HEAD" in ADRC else Defaults.ADRCHEAD
     ADRC["DIR"] = ADRC["DIR"] if "DIR" in ADRC else dir
+
+    if "PID" not in Config:
+        Config["PID"] = {}
+    PID = Config["PID"]
+    PID["L1"] = [float(v) for v in PID["L1"]] if "L1" in PID else [0.0] * 3
+    PID["L2"] = [float(v) for v in PID["L2"]] if "L2" in PID else [0.0] * 3
+    PID["R1"] = [float(v) for v in PID["R1"]] if "R1" in PID else [0.0] * 3
+    PID["R2"] = [float(v) for v in PID["R2"]] if "R2" in PID else [0.0] * 3
+    PID["HEAD"] = eval(PID["HEAD"]) if "HEAD" in PID else Defaults.PIDHEAD
 
     if "SETSTATE" not in Config:
         Config["SETSTATE"] = {}
@@ -59,12 +67,16 @@ def getConfig(dir):
         Config["PATROL"] = {}
     PATROL = Config["PATROL"]
     PATROL["SETPARAMS"] = eval(PATROL["SETPARAMS"]) if "SETPARAMS" in PATROL else Defaults.SETPARAMS
-    PATROL["PARAMS"] = [float(v) for v in PATROL["PARAMS"]] if "PARAMS" in PATROL else Defaults.PARAMS
+    PATROL["NAMES"] = PATROL["NAMES"] if "NAMES" in PATROL else Defaults.PATROLNAMES
+    PATROL["PARAMS"] = [float(v) for v in PATROL["PARAMS"]] if "PARAMS" in PATROL else [0.0] * len(PATROL["PARAMS"])
 
     if "MANAGER" not in Config:
         Config["MANAGER"] = {}
     MANAGER = Config["MANAGER"]
     MANAGER["WINDOWON"] = [int(v) for v in MANAGER["WINDOWON"]] if "WINDOWON" in MANAGER else Defaults.WINDOWON
+
+    if "WINDOWPOSITION" not in Config:
+        Config["WINDOWPOSITION"] = {}
 
     Config.write()
     return Config

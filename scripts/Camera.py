@@ -1,5 +1,8 @@
+from .Main import Main
+
+
 class Camera:
-    def __init__(self, main) -> None:
+    def __init__(self, main: Main) -> None:
         self.main = main
         self.getConfig()
         from os import listdir
@@ -46,6 +49,9 @@ class Camera:
 
         self.showImg()
         self.showCount()
+
+        if "Camera" in self.main.Config["WINDOWPOSITION"]:
+            self.root.geometry(self.main.Config["WINDOWPOSITION"]["Camera"])
 
     def toggleTransfer(self):
         from threading import Thread
