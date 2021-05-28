@@ -65,6 +65,7 @@ class Remote:
             self.main.setActivate(False)
             self.main.setstate.setActivate(False)
             self.main.adrc.setActivate(False)
+            self.main.patrol.setActivate(False)
             for i in range(5):
                 self.main.setstate.checked[i].set(i != 4)
                 self.main.setstate.buttons[i]["state"] = "disabled"
@@ -77,6 +78,7 @@ class Remote:
             self.main.setActivate(True)
             self.main.setstate.setActivate(True)
             self.main.adrc.setActivate(True)
+            self.main.patrol.setActivate(True)
             for i in range(5):
                 self.main.setstate.buttons[i]["state"] = "normal"
             self.transfering = False

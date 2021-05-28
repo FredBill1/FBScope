@@ -1,9 +1,13 @@
+from configobj import ConfigObj
+
+
 class Main:
-    def __init__(self, Config) -> None:
+    def __init__(self, Config: ConfigObj) -> None:
         from tkinter import Tk
         from serial import Serial
         from .Camera import Camera
         from .ADRC import ADRC
+        from .PID import PID
         from .SetState import SetState
         from .Scope import Scope
         from .Remote import Remote
@@ -16,6 +20,7 @@ class Main:
         self.root = Tk()
         self.camera = Camera(self)
         self.adrc = ADRC(self)
+        self.pid = PID(self)
         self.setstate = SetState(self)
         self.scope = Scope(self)
         self.remote = Remote(self)
@@ -82,6 +87,7 @@ class Main:
             self.portCombobox["state"] = self.refreshButton["state"] = self.quitButton["state"] = "disabled"
             self.camera.setActivate(True)
             self.adrc.setActivate(True)
+            self.pid.setActivate(True)
             self.setstate.setActivate(True)
             self.scope.setActivate(True)
             self.remote.setActivate(True)
@@ -91,6 +97,7 @@ class Main:
             self.portCombobox["state"] = self.refreshButton["state"] = self.quitButton["state"] = "normal"
             self.camera.setActivate(False)
             self.adrc.setActivate(False)
+            self.pid.setActivate(False)
             self.setstate.setActivate(False)
             self.scope.setActivate(False)
             self.remote.setActivate(False)
@@ -119,6 +126,7 @@ class Main:
             self.Config["WINDOWPOSITION"]["Main"] = self.root.geometry()
             self.Config["WINDOWPOSITION"]["Camera"] = self.camera.root.geometry()
             self.Config["WINDOWPOSITION"]["ADRC"] = self.adrc.root.geometry()
+            self.Config["WINDOWPOSITION"]["PID"] = self.pid.root.geometry()
             self.Config["WINDOWPOSITION"]["SetState"] = self.setstate.root.geometry()
             self.Config["WINDOWPOSITION"]["Scope"] = self.scope.root.geometry()
             self.Config["WINDOWPOSITION"]["Remote"] = self.remote.root.geometry()

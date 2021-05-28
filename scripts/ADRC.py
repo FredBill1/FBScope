@@ -72,7 +72,6 @@ class ADRC:
     def getConfig(self):
         # keys = ("L1", "L2", "R1", "R2", "TURN")
         keys = ("L1", "L2", "R1", "R2")
-        self.main.Config
         self.Config = [self.main.Config["ADRC"][key] for key in keys]
         self.HEAD = self.main.Config["ADRC"]["HEAD"]
         self.dirStr.set(self.main.Config["ADRC"]["DIR"])
