@@ -3,3 +3,5 @@
 
 智能车上位机
 full of shitcode
+
+请不要使用Spyder打开
