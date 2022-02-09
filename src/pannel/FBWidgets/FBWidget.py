@@ -39,6 +39,10 @@ class FBWidget(DNDBase):
 
     def afterConstruct(self):
         self.configureAll(lambda w: w.bind("<Button-3>", self._rightClick))
+        self.applyConfig()
+
+    def applyConfig(self):
+        ...
 
     def _rightClick(self, event):
         if not self._dragable:

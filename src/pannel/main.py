@@ -20,7 +20,7 @@ entry = canvas.createWidgetByDict(
     {"name": "testEntry", "type": "FBEntry", "pos": [10.0, 10.0], "data": {"text": "test1"}, "config": {},}
 )
 button = canvas.createWidgetByDict(
-    {"name": "testButton", "type": "FBButton", "pos": [10.0, 50.0], "data": {}, "config": {},}
+    {"name": "testButton", "type": "FBButton", "pos": [10.0, 50.0], "data": {}, "config": {"高度": 200},}
 )
 print(entry.toDict())
 root.mainloop()

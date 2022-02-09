@@ -7,7 +7,7 @@ from utils import *
 class DNDBase:
     def __init__(self):
         self.canvas: tk.Canvas = None
-        self.frame: ttk.Label = None
+        self.frame: ttk.Frame = None
         self.dndid = None
         self._dragable: bool = False
 
@@ -36,7 +36,7 @@ class DNDBase:
         if not canvas:
             return
         self.canvas = canvas
-        self.frame = ttk.Label(canvas)
+        self.frame = ttk.Frame(canvas)
         self.construct(self.frame)
         self.afterConstruct()
         self.configureAll(lambda w: w.bind("<ButtonPress-1>", self._on_drag))
@@ -60,7 +60,7 @@ class DNDBase:
         self.frame.destroy()
         self.canvas = self.frame = self.dndid = None
 
-    def construct(self, frame: ttk.LabelFrame) -> None:
+    def construct(self, frame: ttk.Frame) -> None:
         raise NotImplementedError()
 
     def afterConstruct(self) -> None:
