@@ -10,8 +10,8 @@ class FBButton(FBWidget):
 
     def applyConfig(self):
         self.frame.pack_propagate(False)
-        self.frame["width"] = self.config.setdefault("宽度", 100)
-        self.frame["height"] = self.config.setdefault("高度", 30)
+        self.frame["width"] = int(self.config.setdefault("宽度", "100"))
+        self.frame["height"] = int(self.config.setdefault("高度", "30"))
 
     def rename(self):
         super().rename()

@@ -13,8 +13,7 @@ class FBEntry(FBWidget):
         self.entry.pack(side="left")
 
     def applyConfig(self):
-        self.config.setdefault("宽度", 20)
-        self.entry["width"] = self.config["宽度"]
+        self.entry["width"] = int(self.config.setdefault("宽度", "20"))
 
     def rename(self):
         super().rename()
