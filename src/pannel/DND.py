@@ -66,6 +66,9 @@ class DNDBase:
     def afterConstruct(self) -> None:
         ...
 
+    def pos(self):
+        return self.canvas.coords(self.dndid)
+
     def move(self, event):
         x, y = self.where(self.canvas, event)
         self.canvas.coords(self.dndid, x, y)

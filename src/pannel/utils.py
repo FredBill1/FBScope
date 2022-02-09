@@ -1,10 +1,13 @@
 def recursiveSetState(widget, disable: bool):
     for child in widget.winfo_children():
         wtype = child.winfo_class()
-        if wtype not in ("Frame", "Labelframe"):
-            child.configure(state="disable" if disable else "!disable")
-        else:
+        if wtype in ("Frame", "Labelframe"):
             recursiveSetState(child)
+        else:
+            try:
+                child.configure(state="disable" if disable else "!disable")
+            except:
+                pass
 
 
 def recursiveConfigure(widget, func: callable):
