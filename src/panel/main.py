@@ -5,7 +5,7 @@ import os, os.path
 from FBWidgetCanvas import *
 from FBWidgets import *
 
-CFG_DIR = os.path.expanduser("~/.FBScope/pannel")
+CFG_DIR = os.path.expanduser("~/.FBScope/panel")
 os.makedirs(CFG_DIR, exist_ok=True)
 
 
