@@ -3,6 +3,7 @@ from tkinter import ttk
 from ttkbootstrap import Style
 import os, os.path
 from FBWidgetCanvas import *
+from FBWidgets import *
 
 CFG_DIR = os.path.expanduser("~/.FBScope/pannel")
 os.makedirs(CFG_DIR, exist_ok=True)
@@ -15,5 +16,11 @@ nb = ttk.Notebook(root)
 nb.pack(fill="both", expand=True)
 canvas = FBWidgetCanvas(nb)
 nb.add(canvas, text="Canvas")
-
+entry = canvas.createWidgetByDict(
+    {"name": "testEntry", "type": "FBEntry", "pos": [10.0, 10.0], "data": {"text": "test1"}, "config": {},}
+)
+button = canvas.createWidgetByDict(
+    {"name": "testButton", "type": "FBButton", "pos": [10.0, 50.0], "data": {}, "config": {},}
+)
+print(entry.toDict())
 root.mainloop()

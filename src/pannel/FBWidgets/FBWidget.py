@@ -51,7 +51,7 @@ class FBWidget(DNDBase):
         finally:
             menu.grab_release()
 
-    def toDict(self):
+    def toDict(self) -> dict:
         return {
             "name": self.name,
             "type": type(self).__name__,
@@ -63,8 +63,8 @@ class FBWidget(DNDBase):
     @classmethod
     def fromDict(cls, cfg: dict, canvas: "FBWidgetCanvas") -> "FBWidget":
         res = cls(cfg["name"])
-        res.attach(canvas, *cfg["pos"])
         res.data = {k: tk.StringVar(value=v) for k, v in cfg["data"].items()}
         res.config = cfg["config"]
+        res.attach(canvas, *cfg["pos"])
         return res
 

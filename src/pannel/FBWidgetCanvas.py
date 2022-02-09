@@ -5,7 +5,7 @@ from DND import *
 from utils import *
 from collections import defaultdict
 from tkinter import simpledialog, messagebox
-from FBWidgets import FBWidget, FBWIDGET_CLASSES
+from FBWidgets import FBWidget, FBWIDGET_DICT
 
 
 class FBWidgetCanvas(DNDCanvas):
@@ -17,19 +17,29 @@ class FBWidgetCanvas(DNDCanvas):
         self.callbacks: Dict[str, Dict[str, Set[str]]] = defaultdict(lambda: defaultdict(set))
 
         self.create_menu = tk.Menu(tearoff=0)
-        for name, widgetType in FBWIDGET_CLASSES.items():
-            self.create_menu.add_command(label=name, command=lambda wid=widgetType: self.createWidget(wid))
+        for wid_type in FBWIDGET_DICT.keys():
+            self.create_menu.add_command(label=wid_type, command=lambda wid=wid_type: self.createWidgetByType(wid))
         self.bind("<Button-3>", self._rightClick)
 
-    def createWidget(self, type: Callable[[str], FBWidget]):
+    def createWidgetByType(self, wid_type: str):
         name = simpledialog.askstring("输入名称", "请输入名称", initialvalue=f"新组件{len(self.widgets)+1}", parent=self)
         if name:
             if name in self.widgets:
                 messagebox.showerror("组件名称已存在", "组件名称已存在", parent=self)
-                return
-            cur = type(name)
+                return None
+            cur = FBWIDGET_DICT[wid_type](name)
             cur.attach(self, *self._click_pos)
             cur.dragable = self.editing
+            return cur
+
+    def createWidgetByDict(self, cfg: dict):
+        name = cfg.get("name")
+        if name in self.widgets:
+            messagebox.showerror("组件名称已存在", "组件名称已存在", parent=self)
+            return None
+        cur = FBWIDGET_DICT[cfg.get("type")].fromDict(cfg, self)
+        cur.dragable = self.editing
+        return cur
 
     def _rightClick(self, event):
         self._click_pos = (event.x_root - self.winfo_rootx(), event.y_root - self.winfo_rooty())

@@ -5,7 +5,7 @@ import tkinter as tk
 
 class FBEntry(FBWidget):
     def construct(self, frame: ttk.LabelFrame) -> None:
-        self.data["text"] = tk.StringVar(frame)
+        self.data.setdefault("text", tk.StringVar())
         self.label = ttk.Label(frame, text=self.name)
         self.entry = ttk.Entry(frame, textvariable=self.data["text"])
         self.entry.bind("<Return>", lambda _: (frame.focus_set(), self._callback("enter")))
