@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Callable
 import tkinter as tk
 from tkinter import ttk, dnd
 from utils import *
@@ -9,9 +9,21 @@ class DNDBase:
         self.canvas: tk.Canvas = None
         self.frame: ttk.Label = None
         self.dndid = None
+        self._dragable: bool = False
+
+    @property
+    def dragable(self):
+        return self._dragable
+
+    @dragable.setter
+    def dragable(self, value):
+        if self._dragable == value:
+            return
+        self._dragable = value
+        recursiveSetState(self.frame, value)
 
     def _on_drag(self, event):
-        if self._editing and dnd.dnd_start(self, event):
+        if self._dragable and dnd.dnd_start(self, event):
             self.x_off, self.y_off = event.x, event.y
             self.x_orig, self.y_orig = self.canvas.coords(self.dndid)
 
@@ -26,18 +38,33 @@ class DNDBase:
         self.canvas = canvas
         self.frame = ttk.Label(canvas)
         self.construct(self.frame)
-        recursiveConfigure(self.frame, lambda w: w.bind("<ButtonPress>", self._on_drag))
+        self.afterConstruct()
+        self.configureAll(lambda w: w.bind("<ButtonPress-1>", self._on_drag))
         self.dndid = canvas.create_window(x, y, window=self.frame, anchor="nw")
+        self.registerCanvas(canvas)
+
+    def configureAll(self, func: Callable[[tk.Widget], None]) -> None:
+        recursiveConfigure(self.frame, func)
+
+    def registerCanvas(self, canvas: tk.Canvas) -> None:
+        ...
+
+    def unregisterCanvas(self, canvas: tk.Canvas) -> None:
+        ...
 
     def detach(self) -> None:
         if not self.canvas:
             return
+        self.unregisterCanvas(self.canvas)
         self.canvas.delete(self.dndid)
         self.frame.destroy()
         self.canvas = self.frame = self.dndid = None
 
     def construct(self, frame: ttk.LabelFrame) -> None:
         raise NotImplementedError()
+
+    def afterConstruct(self) -> None:
+        ...
 
     def move(self, event):
         x, y = self.where(self.canvas, event)
