@@ -62,14 +62,19 @@ class FBWidgetCmdTable(tk.Toplevel):
         self.tree.heading("command", text="指令", anchor="c")
         self.tree.heading("variable", text="变量", anchor="c")
         self.tree.heading("binding", text="绑定", anchor="c")
+        self.tree.column("name", width=80)
+        self.tree.column("command", width=200)
+        self.tree.column("variable", width=200)
+        self.tree.column("binding", width=200)
 
         self.tree.bind("<<TreeviewSelect>>", self._onSelect)
+        self.btn_close = ttk.Button(self.buttonFrame, text="关闭", command=master.destroyCmdTable)
         self.btn_add = ttk.Button(self.buttonFrame, text="添加", command=self._add)
         self.btn_del = ttk.Button(self.buttonFrame, text="删除", command=self._delete)
         self.btn_edit = ttk.Button(self.buttonFrame, text="编辑", command=self._edit)
         self.btn_up = ttk.Button(self.buttonFrame, text="上移", command=self._up)
         self.btn_down = ttk.Button(self.buttonFrame, text="下移", command=self._down)
-        for btn in (self.btn_add, self.btn_del, self.btn_edit, self.btn_up, self.btn_down):
+        for btn in (self.btn_close, self.btn_add, self.btn_del, self.btn_edit, self.btn_up, self.btn_down):
             btn.pack(side="left", expand=True)
 
         self._state = "!disabled"
