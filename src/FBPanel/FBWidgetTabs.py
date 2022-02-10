@@ -10,9 +10,14 @@ class FBWidgetTabs(ttk.Notebook):
     def __init__(self, master, **kw):
         self.canvases: List[FBWidgetCanvas] = []
         super().__init__(master, **kw)
-        self.add(ttk.Frame(self), text="新建")
+        self._createDummy()
         self.bind("<ButtonRelease>", self._on_click)
         self._isTopmost = False
+
+    def _createDummy(self):
+        cur = tk.Canvas(self)
+        cur["background"] = "gray"
+        self.add(cur, text="新建")
 
     def toggleTopmost(self):
         self._isTopmost = not self._isTopmost
@@ -64,7 +69,7 @@ class FBWidgetTabs(ttk.Notebook):
             cur = FBWidgetCanvas.fromDict(self, canvas)
             self.canvases.append(cur)
             self.add(cur, text=canvas["name"])
-        self.add(ttk.Frame(self), text="新建")
+        self._createDummy()
         return self
 
 
