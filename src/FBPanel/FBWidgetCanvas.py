@@ -22,10 +22,26 @@ class FBWidgetCanvas(DNDCanvas):
         for wid_type in FBWIDGET_DICT.keys():
             self.create_menu.add_command(label=wid_type, command=lambda wid=wid_type: self.createWidgetFromType(wid))
         self.bind("<Button-3>", self._rightClick)
+        self.bind_all("<KeyPress>", self._keyPress)
+        self.bind_all("<KeyRelease>", self._keyRelease)
 
         self.cmdTable: FBWidgetCmdTable = None
         self.cmdDict: Dict[str, str] = {}
         self.cmdList: List[List[str]] = []
+
+        self._pressed = [False] * 26
+
+    def _keyPress(self, event):
+        if "a" <= event.char <= "z":
+            cur = ord(event.char) - ord("a")
+            if not self._pressed[cur]:
+                self._pressed[cur] = True
+                self._callback(f"<{event.char}>", "press")
+
+    def _keyRelease(self, event):
+        if "a" <= event.char <= "z":
+            self._pressed[ord(event.char) - ord("a")] = False
+            self._callback(f"<{event.char}>", "release")
 
     def createCmdTable(self):
         if self.cmdTable is not None:
@@ -89,13 +105,11 @@ class FBWidgetCanvas(DNDCanvas):
         if name in self.callbacks and event in self.callbacks[name]:
             print(self.callbacks[name][event])
 
-    @staticmethod
-    def registerCallback(name: str, event: str, callback: str) -> None:
-        FBWidgetCanvas.callbacks[name][event].add(callback)
+    def registerCallback(self, name: str, event: str, callback: str) -> None:
+        self.callbacks[name][event].add(callback)
 
-    @staticmethod
-    def unregisterCallback(name: str, event: str, callback: str) -> None:
-        FBWidgetCanvas.callbacks[name][event].remove(callback)
+    def unregisterCallback(self, name: str, event: str, callback: str) -> None:
+        self.callbacks[name][event].remove(callback)
 
     def toDict(self):
         return {
