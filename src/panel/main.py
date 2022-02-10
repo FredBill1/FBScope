@@ -30,7 +30,6 @@ root = tk.Tk()
 # nb = FBWidgetTabs(root)
 # nb.pack(fill="both", expand=True)
 
-table = FBWidgetCmdTable(root)
-table.pack(fill="both", expand=True)
+table = FBWidgetCmdTable.fromList(root, [["新命令1", "a", "1"], ["新命令2", "b", "2"], ["新命令3", "c", "3"]])
 
 root.mainloop()

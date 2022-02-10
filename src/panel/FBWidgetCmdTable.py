@@ -34,7 +34,7 @@ class _FBWidgetCmdDialog(simpledialog.Dialog):
         return True
 
 
-class FBWidgetCmdTable(ttk.Frame):
+class FBWidgetCmdTable(tk.Toplevel):
     def __init__(self, master):
         super().__init__(master)
         self.tableFrame = ttk.Frame(self)
@@ -120,3 +120,16 @@ class FBWidgetCmdTable(ttk.Frame):
         idx = self.tree.index(cur)
         if idx < len(self.names) - 1:
             self.tree.move(cur, "", idx + 1)
+
+    def toList(self):
+        return [self.tree.item(i)["values"] for i in self.tree.get_children()]
+
+    @classmethod
+    def fromList(cls, master, lst: List[List[str]]):
+        self = cls(master)
+        for v in lst:
+            if v[0] in self.names:
+                raise ValueError(f"出现重复指令: {lst}")
+            self.tree.insert("", "end", values=v)
+            self.names.add(v[0])
+        return self
