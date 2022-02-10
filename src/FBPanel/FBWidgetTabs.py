@@ -12,6 +12,11 @@ class FBWidgetTabs(ttk.Notebook):
         super().__init__(master, **kw)
         self.add(ttk.Frame(self), text="新建")
         self.bind("<ButtonRelease>", self._on_click)
+        self._isTopmost = False
+
+    def toggleTopmost(self):
+        self._isTopmost = not self._isTopmost
+        self.master.attributes("-topmost", self._isTopmost)
 
     def _on_click(self, event):
         idx = self.tk.call(self._w, "identify", "tab", event.x, event.y)

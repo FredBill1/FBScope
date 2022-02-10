@@ -8,9 +8,12 @@ from tkinter import simpledialog, messagebox
 from FBWidgets import FBWidget, FBWIDGET_DICT
 from FBWidgetCmdTable import FBWidgetCmdTable
 
+if TYPE_CHECKING:
+    from FBWidgetTabs import FBWidgetTabs
+
 
 class FBWidgetCanvas(DNDCanvas):
-    def __init__(self, master, name: str, **kw):
+    def __init__(self, master: "FBWidgetTabs", name: str, **kw):
         super().__init__(master, kw)
         self.name = name
 
@@ -81,11 +84,11 @@ class FBWidgetCanvas(DNDCanvas):
         menu = tk.Menu(self, tearoff=0)
         if self.editing:
             menu.add_cascade(label="新建组件", menu=self.create_menu)
-            menu.add_separator()
             menu.add_command(label="结束编辑", command=lambda: self.setEditing(False))
         else:
             menu.add_command(label="编辑", command=lambda: self.setEditing(True))
         menu.add_separator()
+        menu.add_command(label="切换置顶", command=self.master.toggleTopmost)
         menu.add_command(label="编辑指令", command=self.createCmdTable)
         try:
             menu.tk_popup(event.x_root, event.y_root)
