@@ -84,7 +84,7 @@ class FBWidget(DNDBase):
         }
 
     @classmethod
-    def fromDict(cls, cfg: dict, canvas: "FBWidgetCanvas") -> "FBWidget":
+    def fromDict(cls, canvas: "FBWidgetCanvas", cfg: dict) -> "FBWidget":
         res = cls(cfg["name"])
         res.data = {k: tk.StringVar(value=v) for k, v in cfg["data"].items()}
         res.config = cfg["config"]

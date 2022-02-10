@@ -1,6 +1,9 @@
 import tkinter as tk
 from tkinter import ttk, simpledialog, messagebox
-from typing import List, Tuple, Dict, Set
+from typing import List, Tuple, Dict, Set, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from FBWidgetCanvas import FBWidgetCanvas
 
 
 class _FBWidgetCmdDialog(simpledialog.Dialog):
@@ -35,8 +38,10 @@ class _FBWidgetCmdDialog(simpledialog.Dialog):
 
 
 class FBWidgetCmdTable(tk.Toplevel):
-    def __init__(self, master):
+    def __init__(self, master: "FBWidgetCanvas"):
         super().__init__(master)
+        self.protocol("WM_DELETE_WINDOW", master.destroyCmdTable)
+
         self.tableFrame = ttk.Frame(self)
         self.tableFrame.pack(fill="both", expand=True)
 
@@ -65,7 +70,10 @@ class FBWidgetCmdTable(tk.Toplevel):
         self._state = "!disabled"
         self._checkSel()
 
-        self.names: Set[str] = set()
+        self.cmdDict = master.cmdDict
+
+        for v in master.cmdList:
+            self.tree.insert("", "end", values=v)
 
     def _checkSel(self):
         cur = self.tree.focus()
@@ -81,7 +89,7 @@ class FBWidgetCmdTable(tk.Toplevel):
 
     def _add(self):
         cur = self.tree.focus()
-        cur = self.tree.insert("", "end" if cur == "" else int(cur[1:]), values=(f"新命令{len(self.names)+1}", "", ""))
+        cur = self.tree.insert("", "end" if cur == "" else int(cur[1:]), values=(f"新命令{len(self.cmdDict)+1}", "", ""))
         self.tree.focus(cur)
         self.tree.selection_set(cur)
         self._edit(creating=True)
@@ -93,7 +101,7 @@ class FBWidgetCmdTable(tk.Toplevel):
     def _edit(self, creating=False):
         pre = res = self.tree.item(self.tree.focus())["values"]
         if not creating:
-            self.names.remove(res[0])
+            del self.cmdDict[pre[0]]
         while True:
             d = _FBWidgetCmdDialog(self.tree, res, 0 if creating else 1)
             res = d.result
@@ -101,12 +109,12 @@ class FBWidgetCmdTable(tk.Toplevel):
                 if creating:
                     self.tree.delete(self.tree.focus())
                 else:
-                    self.names.add(pre[0])
+                    self.cmdDict[pre[0]] = pre[1]
                 return
-            if res[0] not in self.names:
+            if res[0] not in self.cmdDict:
                 break
             messagebox.showerror("错误", "名称重复", parent=self.tree)
-        self.names.add(res[0])
+        self.cmdDict[res[0]] = res[1]
         self.tree.item(self.tree.focus(), values=res)
 
     def _up(self):
@@ -118,18 +126,11 @@ class FBWidgetCmdTable(tk.Toplevel):
     def _down(self):
         cur = self.tree.focus()
         idx = self.tree.index(cur)
-        if idx < len(self.names) - 1:
+        if idx < len(self.cmdDict) - 1:
             self.tree.move(cur, "", idx + 1)
 
     def toList(self):
         return [self.tree.item(i)["values"] for i in self.tree.get_children()]
 
-    @classmethod
-    def fromList(cls, master, lst: List[List[str]]):
-        self = cls(master)
-        for v in lst:
-            if v[0] in self.names:
-                raise ValueError(f"出现重复指令: {lst}")
-            self.tree.insert("", "end", values=v)
-            self.names.add(v[0])
-        return self
+
+__all__ = ["FBWidgetCmdTable"]

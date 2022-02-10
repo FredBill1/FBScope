@@ -27,7 +27,7 @@ class FBWidgetTabs(ttk.Notebook):
         idx = self.index("end") - 1
         name = simpledialog.askstring("输入名称", "输入名称", parent=self)
         if name:
-            canvas = FBWidgetCanvas(self)
+            canvas = FBWidgetCanvas(self, name)
             self.canvases.append(canvas)
             self.insert(idx, canvas, text=name)
             self.select(self.tabs()[idx])
@@ -48,3 +48,13 @@ class FBWidgetTabs(ttk.Notebook):
     def toDict(self):
         return {"canvases": [canvas.toDict() for canvas in self.canvases]}
 
+    @classmethod
+    def fromDict(cls, master, cfg):
+        self = cls(master)
+        self.forget(0)
+        for canvas in cfg["canvases"]:
+            cur = FBWidgetCanvas.fromDict(self, canvas)
+            self.canvases.append(cur)
+            self.add(cur, text=canvas["name"])
+        self.add(ttk.Frame(self), text="<+>")
+        return self
