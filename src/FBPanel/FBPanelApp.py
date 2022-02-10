@@ -19,6 +19,7 @@ class FBPanelApp:
 
         style = Style("cosmo")
         self.root: tk.Tk = style.master
+        self.root.title("FBScope: FBPanel")
         self.tabs = FBWidgetTabs.fromDict(self.root, cfg)
         self.tabs.pack(fill="both", expand=True)
 
