@@ -11,7 +11,7 @@ class FBWidget(DNDBase):
     def __init__(self, name: str):
         super().__init__()
         self.name = name
-        self.data: Dict[str, tk.StringVar] = {}
+        self.data: Dict[str, tk.Variable] = {}
         self.config: Dict[str, str] = {}
 
     def registerCanvas(self, canvas: "FBWidgetCanvas") -> None:
@@ -85,8 +85,19 @@ class FBWidget(DNDBase):
 
     @classmethod
     def fromDict(cls, canvas: "FBWidgetCanvas", cfg: dict) -> "FBWidget":
+        def getVar(v):
+            if isinstance(v, str):
+                return tk.StringVar(value=v)
+            elif isinstance(v, int):
+                return tk.IntVar(value=v)
+            elif isinstance(v, float):
+                return tk.DoubleVar(value=v)
+            elif isinstance(v, bool):
+                return tk.BooleanVar(value=v)
+            raise ValueError("Invalid data type")
+
         res = cls(cfg["name"])
-        res.data = {k: tk.StringVar(value=v) for k, v in cfg["data"].items()}
+        res.data = {k: getVar(v) for k, v in cfg["data"].items()}
         res.config = cfg["config"]
         res.attach(canvas, *cfg["pos"])
         return res
