@@ -5,7 +5,7 @@ import tkinter as tk
 
 class FBButton(FBWidget):
     def construct(self, frame: ttk.Frame) -> None:
-        self.button = ttk.Button(frame, text=self.name, command=lambda: (frame.focus_set(), self._callback("click")))
+        self.button = ttk.Button(frame, text=self.name, command=lambda: self._callback("click"))
         self.button.pack(fill="both", expand=True)
 
     def applyConfig(self):

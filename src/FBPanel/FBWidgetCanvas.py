@@ -1,4 +1,4 @@
-from typing import List, Dict, Set, Callable, TYPE_CHECKING
+from typing import List, Dict, Set, Callable, TYPE_CHECKING, Tuple
 import tkinter as tk
 from tkinter import ttk
 from DND import *
@@ -19,7 +19,7 @@ class FBWidgetCanvas(DNDCanvas):
 
         self.editing = False
         self.widgets: Dict[str, "FBWidget"] = {}
-        self.callbacks: Dict[str, Dict[str, Set[str]]] = defaultdict(lambda: defaultdict(set))
+        self.callbacks: Dict[str, set[str]] = defaultdict(set)
 
         self.create_menu = tk.Menu(tearoff=0)
         for wid_type in FBWIDGET_DICT.keys():
@@ -28,9 +28,10 @@ class FBWidgetCanvas(DNDCanvas):
         self.bind("<KeyPress>", self._keyPress)
         self.bind("<KeyRelease>", self._keyRelease)
         self.bind_all("<Escape>", lambda _: self.focus_set())
+        self.bind("<Button>", lambda _: self.focus_set())
 
         self.cmdTable: FBWidgetCmdTable = None
-        self.cmdDict: Dict[str, str] = {}
+        self.cmdDict: Dict[str, Tuple[str, str]] = {}
         self.cmdList: List[List[str]] = []
 
         self._pressed = [False] * 26
@@ -46,6 +47,22 @@ class FBWidgetCanvas(DNDCanvas):
         if "a" <= event.char <= "z":
             self._pressed[ord(event.char) - ord("a")] = False
             self._callback(f"<{event.char}>", "release")
+
+    def _callback(self, name: str, event: str) -> None:
+        cur = f"{name}.{event}"
+        if cur in self.callbacks:
+            for cmd in self.callbacks[cur]:
+                print(cmd)
+
+    def registerCallback(self, name: str, command: str, variables: str, bindings: str):
+        cmd = "$$".join((name, command, variables))
+        for binding in bindings.split(";"):
+            self.callbacks[binding].add(cmd)
+
+    def unregisterCallback(self, name: str, command: str, variables: str, bindings: str):
+        cmd = "$$".join((name, command, variables))
+        for binding in bindings.split(";"):
+            self.callbacks[binding].remove(cmd)
 
     def createCmdTable(self):
         if self.cmdTable is not None:
@@ -104,17 +121,6 @@ class FBWidgetCanvas(DNDCanvas):
         for widget in self.widgets.values():
             widget.dragable = editing
 
-    def _callback(self, name: str, event: str) -> None:
-        print(name, event)
-        if name in self.callbacks and event in self.callbacks[name]:
-            print(self.callbacks[name][event])
-
-    def registerCallback(self, name: str, event: str, callback: str) -> None:
-        self.callbacks[name][event].add(callback)
-
-    def unregisterCallback(self, name: str, event: str, callback: str) -> None:
-        self.callbacks[name][event].remove(callback)
-
     def toDict(self):
         return {
             "name": self.name,
@@ -126,8 +132,9 @@ class FBWidgetCanvas(DNDCanvas):
     def fromDict(cls, master, cfg):
         self = cls(master, cfg["name"])
         self.cmdList = cfg["cmds"]
-        for name, command, variable, _ in self.cmdList:
-            self.cmdDict[name] = [command, variable]
+        for name, command, variable, binding in self.cmdList:
+            self.cmdDict[name] = (command, variable)
+            self.registerCallback(name, command, variable, binding)
         for widget_cfg in cfg["widgets"]:
             widget = FBWIDGET_DICT[widget_cfg["type"]].fromDict(self, widget_cfg)
             widget.dragable = self.editing

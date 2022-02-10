@@ -37,7 +37,7 @@ class _FBWidgetCmdDialog(simpledialog.Dialog):
         return f
 
     def validate(self):
-        self.result = [entry.get() for entry in (self.nameEntry, self.cmdEntry, self.varEntry, self.bindEntry)]
+        self.result = [str(entry.get()) for entry in (self.nameEntry, self.cmdEntry, self.varEntry, self.bindEntry)]
         return True
 
 
@@ -105,8 +105,11 @@ class FBWidgetCmdTable(tk.Toplevel):
         self.tree.delete(self.tree.focus())
         self._checkSel()
 
+    def getItem(self, item: str):
+        return [str(v) for v in self.tree.item(item)["values"]]
+
     def _edit(self, creating=False):
-        pre = res = self.tree.item(self.tree.focus())["values"]
+        pre = res = self.getItem(self.tree.focus())
         if not creating:
             del self.cmdDict[pre[0]]
         while True:
@@ -123,6 +126,9 @@ class FBWidgetCmdTable(tk.Toplevel):
             messagebox.showerror("错误", "名称重复", parent=self.tree)
         self.cmdDict[res[0]] = res[1]
         self.tree.item(self.tree.focus(), values=res)
+        if not creating:
+            self.master.unregisterCallback(*pre)
+        self.master.registerCallback(*res)
 
     def _up(self):
         cur = self.tree.focus()
@@ -137,7 +143,7 @@ class FBWidgetCmdTable(tk.Toplevel):
             self.tree.move(cur, "", idx + 1)
 
     def toList(self):
-        return [self.tree.item(i)["values"] for i in self.tree.get_children()]
+        return [self.getItem(i) for i in self.tree.get_children()]
 
 
 __all__ = ["FBWidgetCmdTable"]
