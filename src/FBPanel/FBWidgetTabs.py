@@ -10,7 +10,7 @@ class FBWidgetTabs(ttk.Notebook):
     def __init__(self, master, **kw):
         self.canvases: List[FBWidgetCanvas] = []
         super().__init__(master, **kw)
-        self.add(ttk.Frame(self), text="<+>")
+        self.add(ttk.Frame(self), text="新建")
         self.bind("<ButtonRelease>", self._on_click)
 
     def _on_click(self, event):
@@ -46,7 +46,10 @@ class FBWidgetTabs(ttk.Notebook):
         self.canvases.pop(idx)
 
     def toDict(self):
-        return {"canvases": [canvas.toDict() for canvas in self.canvases]}
+        return {"canvases": self.toList()}
+
+    def toList(self):
+        return [canvas.toDict() for canvas in self.canvases]
 
     @classmethod
     def fromDict(cls, master, cfg):
@@ -56,5 +59,8 @@ class FBWidgetTabs(ttk.Notebook):
             cur = FBWidgetCanvas.fromDict(self, canvas)
             self.canvases.append(cur)
             self.add(cur, text=canvas["name"])
-        self.add(ttk.Frame(self), text="<+>")
+        self.add(ttk.Frame(self), text="新建")
         return self
+
+
+__all__ = ["FBWidgetTabs"]
