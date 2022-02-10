@@ -25,8 +25,9 @@ class FBWidgetCanvas(DNDCanvas):
         for wid_type in FBWIDGET_DICT.keys():
             self.create_menu.add_command(label=wid_type, command=lambda wid=wid_type: self.createWidgetFromType(wid))
         self.bind("<Button-3>", self._rightClick)
-        self.bind_all("<KeyPress>", self._keyPress)
-        self.bind_all("<KeyRelease>", self._keyRelease)
+        self.bind("<KeyPress>", self._keyPress)
+        self.bind("<KeyRelease>", self._keyRelease)
+        self.bind_all("<Escape>", lambda _: self.focus_set())
 
         self.cmdTable: FBWidgetCmdTable = None
         self.cmdDict: Dict[str, str] = {}
