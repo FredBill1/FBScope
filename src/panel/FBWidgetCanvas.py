@@ -18,10 +18,10 @@ class FBWidgetCanvas(DNDCanvas):
 
         self.create_menu = tk.Menu(tearoff=0)
         for wid_type in FBWIDGET_DICT.keys():
-            self.create_menu.add_command(label=wid_type, command=lambda wid=wid_type: self.createWidgetByType(wid))
+            self.create_menu.add_command(label=wid_type, command=lambda wid=wid_type: self.createWidgetFromType(wid))
         self.bind("<Button-3>", self._rightClick)
 
-    def createWidgetByType(self, wid_type: str):
+    def createWidgetFromType(self, wid_type: str):
         name = simpledialog.askstring("输入名称", "请输入名称", initialvalue=f"新组件{len(self.widgets)+1}", parent=self)
         if name:
             if name in self.widgets:
@@ -32,7 +32,7 @@ class FBWidgetCanvas(DNDCanvas):
             cur.dragable = self.editing
             return cur
 
-    def createWidgetByDict(self, cfg: dict):
+    def createWidgetFromDict(self, cfg: dict):
         name = cfg.get("name")
         if name in self.widgets:
             messagebox.showerror("组件名称已存在", "组件名称已存在", parent=self)
@@ -59,6 +59,7 @@ class FBWidgetCanvas(DNDCanvas):
         if self.editing == editing:
             return
         self.editing = editing
+        self["background"] = "lightgray" if self.editing else "white"
         for widget in self.widgets.values():
             widget.dragable = editing
 
@@ -74,6 +75,9 @@ class FBWidgetCanvas(DNDCanvas):
     @staticmethod
     def unregisterCallback(name: str, event: str, callback: str) -> None:
         FBWidgetCanvas.callbacks[name][event].remove(callback)
+
+    def toDict(self):
+        return {"widgets": {name: widget.toDict() for name, widget in self.widgets.items()}}
 
 
 __all__ = ["FBWidgetCanvas"]
