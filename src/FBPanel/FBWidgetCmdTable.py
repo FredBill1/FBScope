@@ -21,19 +21,23 @@ class _FBWidgetCmdDialog(simpledialog.Dialog):
         self.cmdEntry = ttk.Entry(master)
         self.cmdEntry.grid(row=1, column=1)
 
-        ttk.Label(master, text="绑定").grid(row=2, column=0)
-        self.bindEntry = ttk.Entry(master)
-        self.bindEntry.grid(row=2, column=1)
+        ttk.Label(master, text="变量").grid(row=2, column=0)
+        self.varEntry = ttk.Entry(master)
+        self.varEntry.grid(row=2, column=1)
 
-        for i, entry in enumerate((self.nameEntry, self.cmdEntry, self.bindEntry)):
+        ttk.Label(master, text="绑定").grid(row=3, column=0)
+        self.bindEntry = ttk.Entry(master)
+        self.bindEntry.grid(row=3, column=1)
+
+        for i, entry in enumerate((self.nameEntry, self.cmdEntry, self.varEntry, self.bindEntry)):
             entry.insert("end", self.default[i])
 
-        f = (self.nameEntry, self.cmdEntry, self.bindEntry)[self.focus]
+        f = (self.nameEntry, self.cmdEntry, self.varEntry, self.bindEntry)[self.focus]
         f.select_range(0, "end")
         return f
 
     def validate(self):
-        self.result = [entry.get() for entry in (self.nameEntry, self.cmdEntry, self.bindEntry)]
+        self.result = [entry.get() for entry in (self.nameEntry, self.cmdEntry, self.varEntry, self.bindEntry)]
         return True
 
 
@@ -48,7 +52,7 @@ class FBWidgetCmdTable(tk.Toplevel):
         self.buttonFrame = ttk.Frame(self)
         self.buttonFrame.pack(fill="x", ipadx=5, ipady=5)
 
-        self.tree = ttk.Treeview(self.tableFrame, columns=["name", "command", "binding"], show="headings")
+        self.tree = ttk.Treeview(self.tableFrame, columns=["name", "command", "variable", "binding"], show="headings")
         self.scrollbar = ttk.Scrollbar(self.tableFrame, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=self.scrollbar.set)
         self.scrollbar.pack(side="right", fill="y")
@@ -56,6 +60,7 @@ class FBWidgetCmdTable(tk.Toplevel):
 
         self.tree.heading("name", text="名称", anchor="c")
         self.tree.heading("command", text="指令", anchor="c")
+        self.tree.heading("variable", text="变量", anchor="c")
         self.tree.heading("binding", text="绑定", anchor="c")
 
         self.tree.bind("<<TreeviewSelect>>", self._onSelect)
@@ -89,7 +94,9 @@ class FBWidgetCmdTable(tk.Toplevel):
 
     def _add(self):
         cur = self.tree.focus()
-        cur = self.tree.insert("", "end" if cur == "" else int(cur[1:]), values=(f"新命令{len(self.cmdDict)+1}", "", ""))
+        cur = self.tree.insert(
+            "", "end" if cur == "" else int(cur[1:]), values=(f"新命令{len(self.cmdDict)+1}", "", "", "")
+        )
         self.tree.focus(cur)
         self.tree.selection_set(cur)
         self._edit(creating=True)

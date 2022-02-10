@@ -125,8 +125,8 @@ class FBWidgetCanvas(DNDCanvas):
     def fromDict(cls, master, cfg):
         self = cls(master, cfg["name"])
         self.cmdList = cfg["cmds"]
-        for name, command, _ in self.cmdList:
-            self.cmdDict[name] = command
+        for name, command, variable, _ in self.cmdList:
+            self.cmdDict[name] = [command, variable]
         for widget_cfg in cfg["widgets"]:
             widget = FBWIDGET_DICT[widget_cfg["type"]].fromDict(self, widget_cfg)
             widget.dragable = self.editing
