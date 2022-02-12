@@ -13,7 +13,7 @@ class FBServer(FBSocketBase):
         self._clients: Dict[Tuple[str, int], socket.socket] = {}
         self._clientsLock = threading.Lock()
 
-        self._recvBuf = queue.Queue(1024)
+        self._recvBuf = queue.Queue(10)
 
     @staticmethod
     def _ignoreConnectionError(func):
@@ -40,7 +40,7 @@ class FBServer(FBSocketBase):
                     data = self.request.recv(1024)
                     if not data:
                         break
-                    master._recvBuf.put(data)
+                    master._instantPut(master._recvBuf, data)
 
             def finish(self):
                 master._clientsLock.acquire()

@@ -1,5 +1,6 @@
 from typing import List, Callable, Tuple
 import threading
+import queue
 
 
 class FBSocketBase:
@@ -38,6 +39,17 @@ class FBSocketBase:
     def _joinRecvThread(self) -> None:
         if self._recvCBs:
             self._recvThread.join()
+
+    def _instantPut(self, Que: queue.Queue, data) -> None:
+        while self._running:
+            try:
+                Que.put_nowait(data)
+                return
+            except queue.Full:
+                try:
+                    Que.get_nowait()
+                except queue.Empty:
+                    pass
 
     def registerRecvCallback(self, worker: Callable[[bytes], None]) -> None:
         if self._running:
