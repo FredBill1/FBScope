@@ -3,6 +3,9 @@ import socket
 import threading
 import queue
 from typing import Dict, Tuple
+import os.path, sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__)))
 from CONFIG import HOST, PORT
 from FBSocketBase import FBSocketBase
 

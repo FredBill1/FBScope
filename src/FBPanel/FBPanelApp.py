@@ -1,8 +1,11 @@
 from FBWidgetTabs import FBWidgetTabs
 from ttkbootstrap import Style
-import os, os.path
+import os, os.path, sys
 import json
 import tkinter as tk
+
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+from FBSocket import FBClient
 
 CFG_DIR = os.path.expanduser("~/.FBScope")
 CFG_PATH = os.path.join(CFG_DIR, "FBPanel.json")
@@ -26,12 +29,17 @@ class FBPanelApp:
         self.root.geometry(cfg.get("geometry", "400x300+30+30"))
         self.root.protocol("WM_DELETE_WINDOW", self.onClose)
 
+        self.uartClient = FBClient()
+        self.uartClient.start()
+
         self.mainloop = self.root.mainloop
 
     def toDict(self):
         return {"geometry": self.root.winfo_geometry(), "canvases": self.tabs.toList()}
 
     def onClose(self):
+        self.uartClient.shutdown()
+
         for canvas in self.tabs.canvases:
             canvas.destroyCmdTable()
         with open(CFG_PATH, "w") as f:

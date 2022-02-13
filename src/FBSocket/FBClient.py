@@ -1,10 +1,13 @@
 import socket
 from typing import Tuple
 import time
-from CONFIG import HOST, PORT
-from FBSocketBase import FBSocketBase
 import queue
 import threading
+import os.path, sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__)))
+from CONFIG import HOST, PORT
+from FBSocketBase import FBSocketBase
 
 
 class FBClient(FBSocketBase):
@@ -59,6 +62,7 @@ class FBClient(FBSocketBase):
         self._sendThread.start()
 
         self._startRecvThread()
+        print("客户端启动")
 
     def send(self, data: bytes) -> None:
         self._instantPut(self._sendBuf, data)
