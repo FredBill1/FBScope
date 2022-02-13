@@ -56,5 +56,10 @@ class FBSocketBase:
             raise RuntimeError("开始运行后不能注册新的回调函数")
         self._recvCBs.append(worker)
 
+    @classmethod
+    def _log(cls, *args, **kwargs):
+        print(f"[{cls.__name__}]", end="")
+        print(*args, **kwargs)
+
 
 __all__ = ["FBSocketBase"]

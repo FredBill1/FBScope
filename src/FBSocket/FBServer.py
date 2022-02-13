@@ -35,7 +35,7 @@ class FBServer(FBSocketBase):
                 master._clientsLock.acquire()
                 master._clients[self.client_address] = self.request
                 master._clientsLock.release()
-                print("连接建立:", "%s:%d" % self.client_address)
+                self._log("连接建立:", "%s:%d" % self.client_address)
 
             @FBServer._ignoreConnectionError
             def handle(self):
@@ -49,7 +49,7 @@ class FBServer(FBSocketBase):
                 master._clientsLock.acquire()
                 master._clients.pop(self.client_address, None)
                 master._clientsLock.release()
-                print("连接断开: %s:%d" % self.client_address)
+                self._log("连接断开: %s:%d" % self.client_address)
 
         return Handler
 
@@ -65,7 +65,7 @@ class FBServer(FBSocketBase):
         self._serverThread.start()
 
         self._startRecvThread()
-        print("服务端启动, 地址: %s:%d" % addr)
+        self._log("服务端启动, 地址: %s:%d" % addr)
 
     def shutdown(self) -> None:
         self._running = False
@@ -83,7 +83,7 @@ class FBServer(FBSocketBase):
         self._serverThread.join()
         self._server.server_close()
         self._joinRecvThread()
-        print("服务端终止")
+        self._log("服务端终止")
 
     def send(self, data) -> None:
         self._clientsLock.acquire()

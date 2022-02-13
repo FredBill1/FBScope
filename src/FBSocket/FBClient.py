@@ -24,7 +24,7 @@ class FBClient(FBSocketBase):
             while self._running:
                 if first:
                     first = False
-                    print("尝试连接到", "%s:%d" % self.addr)
+                    self._log("尝试连接到", "%s:%d" % self.addr)
                 try:
                     self._sock.connect(self.addr)
                     break
@@ -33,7 +33,7 @@ class FBClient(FBSocketBase):
                 except OSError:
                     break
             if self._running:
-                print("连接成功")
+                self._log("连接成功")
 
     def _tryWithReconnect(self, func: callable):
         if self._sock is None:
@@ -42,7 +42,7 @@ class FBClient(FBSocketBase):
             try:
                 return func()
             except ConnectionError:
-                print("连接已断开")
+                self._log("连接已断开")
                 self._tryConnect()
         return None
 
@@ -62,7 +62,7 @@ class FBClient(FBSocketBase):
         self._sendThread.start()
 
         self._startRecvThread()
-        print("客户端启动")
+        self._log("客户端启动")
 
     def send(self, data: bytes) -> None:
         self._instantPut(self._sendBuf, data)
@@ -82,7 +82,7 @@ class FBClient(FBSocketBase):
             self._sock.close()
 
         self._joinRecvThread()
-        print("客户端终止")
+        self._log("客户端终止")
 
 
 __all__ = ["FBClient"]
