@@ -66,7 +66,10 @@ class FBServer(FBSocketBase):
 
     def shutdown(self) -> None:
         self._running = False
-        self._recvBuf.put(None)  # 发送空数据，结束线程
+        try:
+            self._recvBuf.put(None, timeout=0.5)  # 发送空数据，结束线程
+        except queue.Full:
+            pass
 
         self._clientsLock.acquire()
         for client in self._clients.values():

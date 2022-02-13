@@ -68,7 +68,10 @@ class FBClient(FBSocketBase):
 
     def shutdown(self) -> None:
         self._running = False
-        self._sendBuf.put(None)  # 发送空数据，结束线程
+        try:
+            self._sendBuf.put(None, timeout=0.5)  # 发送空数据，结束线程
+        except queue.Full:
+            pass
         self._sendThread.join()
 
         if self._sock is not None:
