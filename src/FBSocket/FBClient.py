@@ -89,7 +89,7 @@ __all__ = ["FBClient"]
 
 if __name__ == "__main__":
     client = FBClient()
-    client.registerRecvCallback(lambda data: print("接收:", str(data, "ascii")))
+    client.registerRecvCallback(lambda data: print("接收:", data))
     client.start()
 
     while True:
