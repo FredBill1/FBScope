@@ -1,4 +1,4 @@
-from typing import List, Dict, Set, Callable, TYPE_CHECKING, Tuple
+from typing import List, Dict, Set, Callable, TYPE_CHECKING, Tuple, Optional
 import tkinter as tk
 from tkinter import ttk
 from DND import *
@@ -7,6 +7,7 @@ from collections import defaultdict
 from tkinter import simpledialog, messagebox
 from FBWidgets import FBWidget, FBWIDGET_DICT
 from FBWidgetCmdTable import FBWidgetCmdTable
+from FBinterpreter import interpretCmd
 
 if TYPE_CHECKING:
     from FBWidgetTabs import FBWidgetTabs
@@ -52,75 +53,10 @@ class FBWidgetCanvas(DNDCanvas):
         cur = f"{name}.{event}"
         if cur in self.callbacks:
             for cmd in self.callbacks[cur]:
-                print(cmd)
-                res = self._interpreter(cmd)
-                print(repr(res))
-
-    def _interpreter(self, cmd: str) -> bytes:
-        _, command, variables = (s.strip() for s in cmd.split("$$"))
-        if not command:
-            return b""
-
-        def getVar(var: List[str]) -> list:
-            def getValue(variable: str):
-                if variable.startswith("("):
-                    if not variable.endswith(")"):
-                        messagebox.showerror("错误的变量", f"`{variable}`应以`)`结尾", parent=self)
-                        return None
-                    try:
-                        return eval(variable[1:-1])
-                    except:
-                        messagebox.showerror("错误的变量", f"`{variable}`无法被解析", parent=self)
-                        return None
-                variable = variable.split(".")
-                if len(variable) == 1:
-                    messagebox.showerror("错误的变量", f"`{variable[0]}`没有用`.`指定属性, 或应使用`()`将其指定为字面常量", parent=self)
-                    return None
-                elif len(variable) == 2:
-                    name, attr = variable
-                    if name.startswith("<") and name.endswith(">"):
-                        if len(name) == 3 and "a" <= name[1] <= "z":
-                            if attr == "pressed":
-                                return self._pressed[ord(name[1]) - ord("a")]
-                            elif attr == "released":
-                                return not self._pressed[ord(name[1]) - ord("a")]
-                            else:
-                                messagebox.showerror(
-                                    "错误的属性", f"按键`{name}`没有属性`{attr}`\n应为`pressed`或`released`", parent=self
-                                )
-                                return None
-                        else:
-                            messagebox.showerror("错误的按键", f"不支持`{name}`", parent=self)
-                            return None
-                    else:
-                        if name in self.widgets:
-                            widget = self.widgets[name]
-                            if attr in widget.data:
-                                return widget.data[attr].get()
-                            else:
-                                messagebox.showerror("错误的属性", f"组件`{name}`没有属性{attr}", parent=self)
-                                return None
-                        else:
-                            messagebox.showerror("错误的组件", f"组件`{name}`不存在", parent=self)
-                            return None
-                else:
-                    messagebox.showerror("错误的变量", "变量`{}`不合法, `.`应该且只应出现一次".format(".".join(variable)), parent=self)
-                    return None
-
-            res = []
-            for v in var:
-                v = v.strip()
-                if v:
-                    res.append(getValue(v))
-                    if res[-1] is None:
-                        return None
-            return res
-
-        var = getVar([v for v in variables.split(";")] if variables else [])
-        if var is None:
-            return b""
-
-        print(command, var)
+                res = interpretCmd(self, cmd)
+                if res is not None:
+                    self.master.uartClient.send(res)
+                    print("发送:", (" ".join("%02x" % b for b in res)).upper())
 
     def registerCallback(self, name: str, command: str, variables: str, bindings: str):
         cmd = "$$".join((name, command, variables))

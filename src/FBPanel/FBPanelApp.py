@@ -20,17 +20,18 @@ class FBPanelApp:
         if cfg is None:
             cfg = {"canvases": []}
 
+        self.uartClient = FBClient()
+        self.uartClient.start()
+
         style = Style("cosmo")
         self.root: tk.Tk = style.master
         self.root.title("FBScope: FBPanel")
-        self.tabs = FBWidgetTabs.fromDict(self.root, cfg)
+        self.tabs = FBWidgetTabs.fromDict(self.uartClient, self.root, cfg)
         self.tabs.pack(fill="both", expand=True)
 
         self.root.geometry(cfg.get("geometry", "400x300+30+30"))
         self.root.protocol("WM_DELETE_WINDOW", self.onClose)
 
-        self.uartClient = FBClient()
-        self.uartClient.start()
 
         self.mainloop = self.root.mainloop
 

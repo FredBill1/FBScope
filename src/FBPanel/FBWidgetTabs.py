@@ -7,12 +7,13 @@ from typing import List
 
 
 class FBWidgetTabs(ttk.Notebook):
-    def __init__(self, master, **kw):
+    def __init__(self, uartClient, master, **kw):
         self.canvases: List[FBWidgetCanvas] = []
         super().__init__(master, **kw)
         self._createDummy()
         self.bind("<ButtonRelease>", self._on_click)
         self._isTopmost = False
+        self.uartClient = uartClient
 
     def _createDummy(self):
         cur = tk.Canvas(self)
@@ -62,8 +63,8 @@ class FBWidgetTabs(ttk.Notebook):
         return [canvas.toDict() for canvas in self.canvases]
 
     @classmethod
-    def fromDict(cls, master, cfg):
-        self = cls(master)
+    def fromDict(cls, uartClient, master, cfg):
+        self = cls(uartClient, master)
         self.forget(0)
         for canvas in cfg["canvases"]:
             cur = FBWidgetCanvas.fromDict(self, canvas)
