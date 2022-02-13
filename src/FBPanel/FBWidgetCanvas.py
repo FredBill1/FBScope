@@ -60,54 +60,53 @@ class FBWidgetCanvas(DNDCanvas):
         _, command, variables = (s.strip() for s in cmd.split("$$"))
         if not command:
             return b""
-        var = [v for v in variables.split(";")] if variables else []
-
-        def getValue(variable: str):
-            if variable.startswith("("):
-                if not variable.endswith(")"):
-                    messagebox.showerror("错误的变量", f"`{variable}`应以`)`结尾", parent=self)
-                    return None
-                try:
-                    return eval(variable[1:-1])
-                except:
-                    messagebox.showerror("错误的变量", f"`{variable}`无法被解析", parent=self)
-                    return None
-            variable = variable.split(".")
-            if len(variable) == 1:
-                messagebox.showerror("错误的变量", f"`{variable[0]}`没有用`.`指定属性, 或应使用`()`将其指定为字面常量", parent=self)
-                return None
-            elif len(variable) == 2:
-                name, attr = variable
-                if name.startswith("<") and name.endswith(">"):
-                    if len(name) == 3 and "a" <= name[1] <= "z":
-                        if attr == "pressed":
-                            return self._pressed[ord(name[1]) - ord("a")]
-                        elif attr == "released":
-                            return not self._pressed[ord(name[1]) - ord("a")]
-                        else:
-                            messagebox.showerror(
-                                "错误的属性", f"按键`{name}`没有属性`{attr}`\n应为`pressed`或`released`", parent=self
-                            )
-                            return None
-                    else:
-                        messagebox.showerror("错误的按键", f"不支持`{name}`", parent=self)
-                        return None
-                else:
-                    if name in self.widgets:
-                        widget = self.widgets[name]
-                        if attr in widget.data:
-                            return widget.data[attr].get()
-                        else:
-                            messagebox.showerror("错误的属性", f"组件`{name}`没有属性{attr}", parent=self)
-                            return None
-                    else:
-                        messagebox.showerror("错误的组件", f"组件`{name}`不存在", parent=self)
-                        return None
-            else:
-                messagebox.showerror("错误的变量", "变量`{}`不合法, `.`应该且只应出现一次".format(".".join(variable)), parent=self)
-                return None
 
         def getVar(var: List[str]) -> list:
+            def getValue(variable: str):
+                if variable.startswith("("):
+                    if not variable.endswith(")"):
+                        messagebox.showerror("错误的变量", f"`{variable}`应以`)`结尾", parent=self)
+                        return None
+                    try:
+                        return eval(variable[1:-1])
+                    except:
+                        messagebox.showerror("错误的变量", f"`{variable}`无法被解析", parent=self)
+                        return None
+                variable = variable.split(".")
+                if len(variable) == 1:
+                    messagebox.showerror("错误的变量", f"`{variable[0]}`没有用`.`指定属性, 或应使用`()`将其指定为字面常量", parent=self)
+                    return None
+                elif len(variable) == 2:
+                    name, attr = variable
+                    if name.startswith("<") and name.endswith(">"):
+                        if len(name) == 3 and "a" <= name[1] <= "z":
+                            if attr == "pressed":
+                                return self._pressed[ord(name[1]) - ord("a")]
+                            elif attr == "released":
+                                return not self._pressed[ord(name[1]) - ord("a")]
+                            else:
+                                messagebox.showerror(
+                                    "错误的属性", f"按键`{name}`没有属性`{attr}`\n应为`pressed`或`released`", parent=self
+                                )
+                                return None
+                        else:
+                            messagebox.showerror("错误的按键", f"不支持`{name}`", parent=self)
+                            return None
+                    else:
+                        if name in self.widgets:
+                            widget = self.widgets[name]
+                            if attr in widget.data:
+                                return widget.data[attr].get()
+                            else:
+                                messagebox.showerror("错误的属性", f"组件`{name}`没有属性{attr}", parent=self)
+                                return None
+                        else:
+                            messagebox.showerror("错误的组件", f"组件`{name}`不存在", parent=self)
+                            return None
+                else:
+                    messagebox.showerror("错误的变量", "变量`{}`不合法, `.`应该且只应出现一次".format(".".join(variable)), parent=self)
+                    return None
+
             res = []
             for v in var:
                 v = v.strip()
@@ -117,7 +116,7 @@ class FBWidgetCanvas(DNDCanvas):
                         return None
             return res
 
-        var = getVar(var)
+        var = getVar([v for v in variables.split(";")] if variables else [])
         if var is None:
             return b""
 
