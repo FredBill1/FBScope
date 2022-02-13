@@ -27,7 +27,8 @@ class FBClient(FBSocketBase):
                     break
                 except ConnectionError:
                     time.sleep(0.5)
-            print("连接成功")
+            if self._running:
+                print("连接成功")
 
     def _tryWithReconnect(self, func: callable):
         if self._sock is None:
@@ -47,7 +48,7 @@ class FBClient(FBSocketBase):
                 break
             self._tryWithReconnect(lambda: self._sock.sendall(data))
 
-    def start(self, addr: Tuple[str, int]) -> None:
+    def start(self, addr: Tuple[str, int] = (HOST, PORT)) -> None:
         self.addr = addr
         self._running = True
 
@@ -66,11 +67,11 @@ class FBClient(FBSocketBase):
     def shutdown(self) -> None:
         self._running = False
         self._sendBuf.put(None)  # 发送空数据，结束线程
-        if self._sock is not None:
-            self._sock.close()
-
         self._sendThread.join()
         self._joinRecvThread()
+
+        if self._sock is not None:
+            self._sock.close()
         print("客户端终止")
 
 
@@ -79,7 +80,7 @@ __all__ = ["FBClient"]
 if __name__ == "__main__":
     client = FBClient()
     client.registerRecvCallback(lambda data: print("接收:", str(data, "ascii")))
-    client.start((HOST, PORT))
+    client.start()
 
     while True:
         s = input()

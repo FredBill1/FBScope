@@ -50,7 +50,7 @@ class FBServer(FBSocketBase):
 
         return Handler
 
-    def start(self, addr: Tuple[str, int]) -> None:
+    def start(self, addr: Tuple[str, int] = (HOST, PORT)) -> None:
         self._running = True
 
         class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
@@ -96,7 +96,7 @@ __all__ = ["FBServer"]
 if __name__ == "__main__":
     server = FBServer()
     server.registerRecvCallback(lambda data: print("接收:", str(data, "ascii")))
-    server.start((HOST, PORT))
+    server.start()
 
     while True:
         s = input()
