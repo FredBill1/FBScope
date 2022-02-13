@@ -72,6 +72,7 @@ class FBWidgetCmdTable(tk.Toplevel):
         self.tree.column("binding", width=200)
 
         self.tree.bind("<<TreeviewSelect>>", self._onSelect)
+        self.tree.bind("<Double-1>", self._onDoubleClick)
         self.btn_close = ttk.Button(self.buttonFrame, text="关闭", command=master.destroyCmdTable)
         self.btn_add = ttk.Button(self.buttonFrame, text="添加", command=self._add)
         self.btn_del = ttk.Button(self.buttonFrame, text="删除", command=self._delete)
@@ -88,6 +89,10 @@ class FBWidgetCmdTable(tk.Toplevel):
 
         for v in master.cmdList:
             self.tree.insert("", "end", values=v)
+
+    def _onDoubleClick(self, event):
+        if self.tree.focus() != "":
+            self._edit()
 
     def _checkSel(self):
         cur = self.tree.focus()
