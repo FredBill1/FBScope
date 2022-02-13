@@ -133,12 +133,12 @@ class FBWidgetCmdTable(tk.Toplevel):
                 if creating:
                     self.tree.delete(self.tree.focus())
                 else:
-                    self.cmdDict[pre[0]] = pre[1]
+                    self.cmdDict[pre[0]] = (pre[1], pre[2])
                 return
             if res[0] not in self.cmdDict:
                 break
             messagebox.showerror("错误", "名称重复", parent=self.tree)
-        self.cmdDict[res[0]] = res[1]
+        self.cmdDict[res[0]] = (res[1], res[2])
         self.tree.item(self.tree.focus(), values=res)
         if not creating:
             self.master.unregisterCallback(*pre)
