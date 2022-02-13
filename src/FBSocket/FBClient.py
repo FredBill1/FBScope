@@ -27,6 +27,8 @@ class FBClient(FBSocketBase):
                     break
                 except ConnectionError:
                     time.sleep(0.5)
+                except OSError:
+                    break
             if self._running:
                 print("连接成功")
 
@@ -68,10 +70,11 @@ class FBClient(FBSocketBase):
         self._running = False
         self._sendBuf.put(None)  # 发送空数据，结束线程
         self._sendThread.join()
-        self._joinRecvThread()
 
         if self._sock is not None:
             self._sock.close()
+
+        self._joinRecvThread()
         print("客户端终止")
 
 
