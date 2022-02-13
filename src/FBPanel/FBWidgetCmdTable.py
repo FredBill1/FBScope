@@ -13,21 +13,25 @@ class _FBWidgetCmdDialog(simpledialog.Dialog):
         super().__init__(master, title="编辑指令")
 
     def body(self, master):
+        master.pack_configure(fill="x", expand=True)
+        master.grid_columnconfigure(1, weight=1)
+        WIDTH = 100
+
         ttk.Label(master, text="名称").grid(row=0, column=0)
-        self.nameEntry = ttk.Entry(master)
-        self.nameEntry.grid(row=0, column=1)
+        self.nameEntry = ttk.Entry(master, width=WIDTH)
+        self.nameEntry.grid(row=0, column=1, sticky="ew")
 
         ttk.Label(master, text="指令").grid(row=1, column=0)
-        self.cmdEntry = ttk.Entry(master)
-        self.cmdEntry.grid(row=1, column=1)
+        self.cmdEntry = ttk.Entry(master, width=WIDTH)
+        self.cmdEntry.grid(row=1, column=1, sticky="ew")
 
         ttk.Label(master, text="变量").grid(row=2, column=0)
-        self.varEntry = ttk.Entry(master)
-        self.varEntry.grid(row=2, column=1)
+        self.varEntry = ttk.Entry(master, width=WIDTH)
+        self.varEntry.grid(row=2, column=1, sticky="ew")
 
         ttk.Label(master, text="绑定").grid(row=3, column=0)
-        self.bindEntry = ttk.Entry(master)
-        self.bindEntry.grid(row=3, column=1)
+        self.bindEntry = ttk.Entry(master, width=WIDTH)
+        self.bindEntry.grid(row=3, column=1, sticky="ew")
 
         for i, entry in enumerate((self.nameEntry, self.cmdEntry, self.varEntry, self.bindEntry)):
             entry.insert("end", self.default[i])
