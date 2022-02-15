@@ -70,25 +70,29 @@ def interpretCmd(canvas: "FBWidgetCanvas", cmd: str, depth: int = 0) -> Optional
     def evaluate(command: List[str], var: list) -> Optional[bytes]:
         def getValue(cmd: str, var: list) -> Optional[bytes]:
             if cmd.startswith("%"):
-                if not var:
-                    messagebox.showerror("错误的变量", "变量数量少于指令所需数量", parent=canvas)
-                    return None
-                cur = var.pop()
-                try:
-                    if cmd == "%b":
-                        return as_bytes(cur)
-                    elif cmd == "%s":
-                        return as_str(cur)
-                    elif cmd == "%f":
-                        return as_float(cur, 4, AS_FLOAT_CHECKSUM)
-                    elif cmd == "%lf":
-                        return as_float(cur, 8, AS_FLOAT_CHECKSUM)
-                    else:
-                        messagebox.showerror("错误的指令", f"类型`{cmd}`不存在", parent=canvas)
+                res = b""
+                for fmt in cmd[1:].split("%"):
+                    fmt = fmt.strip()
+                    if not var:
+                        messagebox.showerror("错误的变量", "变量数量少于指令所需数量", parent=canvas)
                         return None
-                except:
-                    messagebox.showerror("错误的变量", f"`{cur}`无法被转换为`{cmd}`", parent=canvas)
-                    return None
+                    cur = var.pop()
+                    try:
+                        if fmt == "b":
+                            res += as_bytes(cur)
+                        elif fmt == "s":
+                            res += as_str(cur)
+                        elif fmt == "f":
+                            res += as_float(cur, 4, AS_FLOAT_CHECKSUM)
+                        elif fmt == "lf":
+                            res += as_float(cur, 8, AS_FLOAT_CHECKSUM)
+                        else:
+                            messagebox.showerror("错误的指令", f"类型`%{fmt}`不存在", parent=canvas)
+                            return None
+                    except:
+                        messagebox.showerror("错误的变量", f"`{cur}`无法被转换为`%{fmt}`", parent=canvas)
+                        return None
+                return res
             elif cmd.startswith("#"):
                 cmd = cmd[1:]
                 if cmd in canvas.cmdDict:
