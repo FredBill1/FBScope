@@ -116,6 +116,7 @@ class FBWidgetCmdTable(tk.Toplevel):
         self._edit(creating=True)
 
     def _delete(self):
+        del self.cmdDict[self.getItem(self.tree.focus())[0]]
         self.tree.delete(self.tree.focus())
         self._checkSel()
 
