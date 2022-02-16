@@ -24,12 +24,7 @@ class FBFloatRecv:
         self._instantPut(self._inputBuf, data)
 
     def setConfig(
-        self,
-        cnt: Optional[int] = None,
-        bits: Optional[int] = None,
-        checksum: Optional[bool] = None,
-        timeout: Optional[float] = None,
-        HEADER: Optional[bytes] = None,
+        self, cnt: Optional[int] = None, bits: Optional[int] = None, checksum: Optional[bool] = None,
     ) -> None:
         with self._configLock:
             if cnt is not None:
@@ -40,10 +35,6 @@ class FBFloatRecv:
                 self.bits = bits
             if checksum is not None:
                 self.checksum = checksum
-            if timeout is not None:
-                self.timeout = timeout
-            if HEADER is not None:
-                self.HEADER = HEADER
 
     def start(self) -> None:
         self._running = True
@@ -71,23 +62,26 @@ class FBFloatRecv:
 
     def recv(self) -> List[float]:
         with self._configLock:
-            try:
-                self._waitHeader()
-                if not self._running:
-                    return None
-                res = [None] * self.cnt
-                for i in range(self.cnt):
-                    tmp = [None] * self.bits
-                    for j in range(self.bits):
-                        tmp[j] = self.getchar(as_int=True)
-                        if tmp[j] is None:
-                            return None
-                    if sum(tmp) & 255 != self.getchar(as_int=True):
-                        return None
-                    res[i] = struct.unpack("f" if self.bits == 4 else "d", bytes(tmp))[0]
-                return res
-            except queue.Empty:
+            cnt = self.cnt
+            bits = self.bits
+            checksum = self.checksum
+        try:
+            self._waitHeader()
+            if not self._running:
                 return None
+            res = [None] * cnt
+            for i in range(cnt):
+                tmp = [None] * bits
+                for j in range(bits):
+                    tmp[j] = self.getchar(as_int=True)
+                    if tmp[j] is None:
+                        return None
+                if checksum and sum(tmp) & 255 != self.getchar(as_int=True):
+                    return None
+                res[i] = struct.unpack("f" if self.bits == 4 else "d", bytes(tmp))[0]
+            return res
+        except queue.Empty:
+            return None
 
     def getchar(self, as_int: bool = False, timeout: bool = True) -> bytes:
         while self._running and self._curIdx >= len(self._curBuf):
