@@ -44,6 +44,8 @@ class FBClient(FBSocketBase):
             except ConnectionError:
                 self._log("连接已断开")
                 self._tryConnect()
+            except OSError:
+                return None
         return None
 
     def _sendThreadEntry(self) -> None:
