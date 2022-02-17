@@ -2,7 +2,6 @@ from typing import List, Dict, Set, Callable, TYPE_CHECKING, Tuple, Optional
 import tkinter as tk
 import ttkbootstrap as ttk
 from DND import *
-from utils import *
 from collections import defaultdict
 from tkinter import simpledialog, messagebox
 from FBWidgets import FBWidget, FBWIDGET_DICT
@@ -11,6 +10,7 @@ from FBinterpreter import interpretCmd
 
 if TYPE_CHECKING:
     from FBWidgetTabs import FBWidgetTabs
+
 
 
 class FBWidgetCanvas(DNDCanvas):

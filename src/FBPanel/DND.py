@@ -2,7 +2,24 @@ from typing import List, Callable
 import tkinter as tk
 from tkinter import dnd
 import ttkbootstrap as ttk
-from utils import *
+
+
+def _recursiveSetState(widget, disable: bool):
+    for child in widget.winfo_children():
+        wtype = child.winfo_class()
+        if wtype in ("Frame", "Labelframe"):
+            _recursiveSetState(child)
+        else:
+            try:
+                child.configure(state="disable" if disable else "!disable")
+            except:
+                pass
+
+
+def _recursiveConfigure(widget, func: callable):
+    func(widget)
+    for child in widget.winfo_children():
+        _recursiveConfigure(child, func)
 
 
 class DNDBase:
@@ -21,7 +38,7 @@ class DNDBase:
         if self._dragable == value:
             return
         self._dragable = value
-        recursiveSetState(self.frame, value)
+        _recursiveSetState(self.frame, value)
 
     def _on_drag(self, event):
         if self._dragable and dnd.dnd_start(self, event):
@@ -45,7 +62,7 @@ class DNDBase:
         self.registerCanvas(canvas)
 
     def configureAll(self, func: Callable[[tk.Widget], None]) -> None:
-        recursiveConfigure(self.frame, func)
+        _recursiveConfigure(self.frame, func)
 
     def registerCanvas(self, canvas: tk.Canvas) -> None:
         ...
