@@ -33,6 +33,7 @@ class FBPlotApp:
         self._root = style.master
         self._root.rowconfigure(0, weight=1)
         self._root.columnconfigure(1, weight=1)
+        self._root.title("FBScope: FBPlot")
 
         self._panel = ttk.Frame(self._root)
         self._panel.grid(row=0, column=0, sticky="nswe")
