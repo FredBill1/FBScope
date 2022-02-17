@@ -74,7 +74,10 @@ class FBSerial:
 
     def close(self) -> None:
         if self._serThread is not None:
-            threading.Thread(target=self._serThread.close).start()
+            if self._running:
+                threading.Thread(target=self._serThread.close).start()
+            else:
+                self._serThread.close()
 
     def registerConnectCallback(self, func: callable) -> None:
         self._conCB.append(func)
