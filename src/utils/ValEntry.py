@@ -1,13 +1,15 @@
 from tkinter import ttk
 import tkinter as tk
-from typing import Callable
+from typing import Callable, Optional
 
 
 class ValEntry(ttk.Entry):
-    def __init__(self, pred: Callable[[str], bool], master=None, **kwargs):
+    def __init__(self, pred: Callable[[str], bool], master=None, text: Optional[str] = None, **kwargs):
         self._pred = pred
         self._preval = ""
         self._var = tk.StringVar()
+        if text is not None:
+            self._var.set(text)
         super().__init__(master, textvariable=self._var, validate="focusout", validatecommand=self._validator, **kwargs)
         self.get = self._var.get
 
@@ -25,6 +27,13 @@ class ValEntry(ttk.Entry):
         else:
             self.set(self._preval)
         return True
+
+    def bind(self, event, func, add=None):
+        def wrapper(arg):
+            self._validator()
+            return func(arg)
+
+        super().bind(event, wrapper, add)
 
 
 __all__ = ["ValEntry"]
