@@ -9,7 +9,7 @@ class FBSerialApp:
     def __init__(self):
         style = ttk.Style("cosmo")
         self._root = style.master
-        self._root.title("FBScope: FBSerial")
+        self._root.title("FBSerial")
         self._root.resizable(False, False)
         self._root.attributes("-topmost", True)
         self._root.protocol("WM_DELETE_WINDOW", self.shutdown)
