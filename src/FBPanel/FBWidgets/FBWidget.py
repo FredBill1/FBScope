@@ -102,3 +102,6 @@ class FBWidget(DNDBase):
         res.attach(canvas, *cfg["pos"])
         return res
 
+
+__all__ = ["FBWidget"]
+

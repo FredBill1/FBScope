@@ -18,3 +18,6 @@ class FBEntry(FBWidget):
     def rename(self):
         super().rename()
         self.label["text"] = self.name
+
+
+__all__ = ["FBEntry"]

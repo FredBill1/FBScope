@@ -16,3 +16,6 @@ class FBButton(FBWidget):
     def rename(self):
         super().rename()
         self.button["text"] = self.name
+
+
+__all__ = ["FBButton"]
