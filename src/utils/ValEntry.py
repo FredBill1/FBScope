@@ -4,10 +4,17 @@ from typing import Callable, Optional
 
 
 class ValEntry(ttk.Entry):
-    def __init__(self, pred: Callable[[str], bool], master=None, text: Optional[str] = None, **kwargs):
+    def __init__(
+        self,
+        pred: Callable[[str], bool],
+        master=None,
+        text: Optional[str] = None,
+        textvariable: Optional[tk.StringVar] = None,
+        **kwargs
+    ):
         self._pred = pred
         self._preval = ""
-        self._var = tk.StringVar()
+        self._var = tk.StringVar() if textvariable is None else textvariable
         if text is not None:
             self._var.set(text)
         super().__init__(master, textvariable=self._var, validate="focusout", validatecommand=self._validator, **kwargs)
@@ -34,6 +41,17 @@ class ValEntry(ttk.Entry):
             return func(arg)
 
         super().bind(event, wrapper, add)
+
+    @staticmethod
+    def type_validator(Type: callable) -> Callable[[str], bool]:
+        def wrapper(s: str) -> bool:
+            try:
+                Type(s)
+                return True
+            except:
+                return False
+
+        return wrapper
 
 
 __all__ = ["ValEntry"]
