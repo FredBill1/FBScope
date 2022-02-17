@@ -37,7 +37,7 @@ class FBPlotFrame(ttk.Frame):
         self._opFrame.grid(row=1, column=0, sticky="we")
 
         self._autoscaleCheckButton = ttk.Checkbutton(
-            self._opFrame, text="自动缩放", bootstyle=("success", "round", "toggle"), command=self._autoscale
+            self._opFrame, text="自动缩放", bootstyle=("success", "round", "toggle"), command=self._toggleAutoscaleCB
         )
         self._autoscaleCheckButton.state(["selected"])
         self._autoscaleCheckButton.pack(side="left", padx=5, pady=5)
@@ -52,7 +52,7 @@ class FBPlotFrame(ttk.Frame):
         self._ylowEntry = ValEntry(_valFloat, self._opFrame, text="-1.0", width=7)
         self._yhighEntry = ValEntry(_valFloat, self._opFrame, text="1.0", width=7)
         for entry in (self._ylowEntry, self._yhighEntry):
-            entry.bind("<Return>", self._autoscale)
+            entry.bind("<Return>", self._fixedscale)
         ttk.Label(self._opFrame, text="y轴范围: 下限").pack(side="left", padx=5, pady=5)
         self._ylowEntry.pack(side="left", padx=5, pady=5)
         ttk.Label(self._opFrame, text="上限").pack(side="left", padx=5, pady=5)
@@ -68,7 +68,7 @@ class FBPlotFrame(ttk.Frame):
             self._initPlot()
             self._ax.grid(True)
             self._ax.set_xlim(0, self.samplecnt)
-        self._autoscale()
+        self._toggleAutoscaleCB()
 
     def _initPlot(self):
         self._x = np.arange(self.samplecnt)
@@ -82,20 +82,28 @@ class FBPlotFrame(ttk.Frame):
             self._y[-1, :] = data
             self._updateFlag = True
 
-    def _autoscale(self, *_):
+    def _toggleAutoscaleCB(self, *_):
         if self._autoscaleCheckButton.instate(["selected"]):
             self._ylowEntry.state(["disabled"])
             self._yhighEntry.state(["disabled"])
-            self._ax.set_autoscaley_on(True)
-            self._ax.relim(visible_only=True)
-            self._ax.autoscale_view(scalex=False, scaley=True)
-            self._ylowEntry.set("{:.2f}".format(self._ax.get_ylim()[0]))
-            self._yhighEntry.set("{:.2f}".format(self._ax.get_ylim()[1]))
+            self._autoscale()
         else:
             self._ylowEntry.state(["!disabled"])
             self._yhighEntry.state(["!disabled"])
-            low, high = float(self._ylowEntry.get()), float(self._yhighEntry.get())
-            self._ax.set_ylim((min(low, high), max(low, high)))
+            self._fixedscale()
+
+    def _fixedscale(self, *_):
+        low, high = float(self._ylowEntry.get()), float(self._yhighEntry.get())
+        self._ax.set_ylim((min(low, high), max(low, high)))
+
+    def _autoscale(self, *_):
+        self._ylowEntry.state(["disabled"])
+        self._yhighEntry.state(["disabled"])
+        self._ax.set_autoscaley_on(True)
+        self._ax.relim(visible_only=True)
+        self._ax.autoscale_view(scalex=False, scaley=True)
+        self._ylowEntry.set("{:.2f}".format(self._ax.get_ylim()[0]))
+        self._yhighEntry.set("{:.2f}".format(self._ax.get_ylim()[1]))
 
     def _updatePlot(self, *_):
         with self._dataLock:
@@ -103,7 +111,8 @@ class FBPlotFrame(ttk.Frame):
                 self._updateFlag = False
                 for i, line in enumerate(self._lines):
                     line.set_ydata(self._y[:, i])
-                self._autoscale()
+                if self._autoscaleCheckButton.instate(["selected"]):
+                    self._autoscale()
 
 
 if __name__ == "__main__":
