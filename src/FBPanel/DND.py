@@ -1,6 +1,7 @@
 from typing import List, Callable
 import tkinter as tk
-from tkinter import ttk, dnd
+from tkinter import dnd
+import ttkbootstrap as ttk
 from utils import *
 
 

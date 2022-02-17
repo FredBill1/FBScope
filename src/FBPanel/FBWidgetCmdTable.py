@@ -1,5 +1,6 @@
 import tkinter as tk
-from tkinter import ttk, simpledialog, messagebox
+from tkinter import simpledialog, messagebox
+import ttkbootstrap as ttk
 from typing import List, Tuple, Dict, Set, TYPE_CHECKING
 
 if TYPE_CHECKING:

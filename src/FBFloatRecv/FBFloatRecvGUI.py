@@ -1,6 +1,5 @@
 import sys, os, os.path
-import tkinter as tk
-from tkinter import ttk, messagebox
+import ttkbootstrap as ttk
 import json
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))

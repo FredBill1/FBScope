@@ -1,5 +1,5 @@
 from .FBWidget import FBWidget
-from tkinter import ttk
+import ttkbootstrap as ttk
 import tkinter as tk
 
 

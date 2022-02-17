@@ -1,4 +1,4 @@
-from tkinter import ttk
+import ttkbootstrap as ttk
 import tkinter as tk
 from typing import Callable, Optional
 

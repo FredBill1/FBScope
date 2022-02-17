@@ -1,6 +1,6 @@
 from typing import List, Dict, Set, Callable, TYPE_CHECKING, Tuple, Optional
 import tkinter as tk
-from tkinter import ttk
+import ttkbootstrap as ttk
 from DND import *
 from utils import *
 from collections import defaultdict
