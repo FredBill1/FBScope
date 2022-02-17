@@ -1,5 +1,4 @@
 import serial
-from serial.tools.list_ports import comports
 from serial.threaded import Protocol, ReaderThread
 import os.path, sys
 import threading
@@ -27,6 +26,8 @@ class FBSerial:
         class PrintLines(Protocol):
             def connection_made(self, transport):
                 for cb in master._conCB:
+                    if not master._running:
+                        break
                     cb()
                 self.port = transport.serial.port
                 print(f"[FBSerial]连接建立: {self.port}")
@@ -39,6 +40,8 @@ class FBSerial:
                 master._connected.clear()
                 master._serThread = None
                 for cb in master._disconCB:
+                    if not master._running:
+                        break
                     cb()
                 print(f"[FBSerial]连接断开: {self.port}")
 
@@ -71,7 +74,7 @@ class FBSerial:
 
     def close(self) -> None:
         if self._serThread is not None:
-            self._serThread.close()
+            threading.Thread(target=self._serThread.close).start()
 
     def registerConnectCallback(self, func: callable) -> None:
         self._conCB.append(func)
@@ -79,6 +82,8 @@ class FBSerial:
     def registerDisconnectCallback(self, func: callable) -> None:
         self._disconCB.append(func)
 
+
+__all__ = ["FBSerial"]
 
 if __name__ == "__main__":
     ser = FBSerial()
