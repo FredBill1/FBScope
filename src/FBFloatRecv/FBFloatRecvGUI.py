@@ -33,12 +33,33 @@ class FBFloatRecvGUI(ttk.Frame):
         self._checkCbo.current(0)
         self._checkCbo.grid(row=2, column=1, sticky="we")
 
-        ttk.Button(self, text="应用", command=self._applyConfig).grid(row=3, column=0, columnspan=2, sticky="we")
+        extra = self.extraBody(self)
+        if extra is not None:
+            extra.grid(row=3, column=0, columnspan=2, sticky="we")
+
+        self._cbs: callable = []
+        ttk.Button(self, text="应用", command=self._clickCB).grid(
+            row=3 + (extra is not None), column=0, columnspan=2, sticky="we"
+        )
 
         self.loadConfig()
 
+    def extraBody(self, master: ttk.Frame) -> ttk.Frame:
+        return None
+
+    def registerClickCallback(self, func: callable):
+        self._cbs.append(func)
+
+    def _clickCB(self):
+        self._applyConfig()
+        for cb in self._cbs:
+            cb()
+
+    def getCnt(self):
+        return int(self._cntEntry.get())
+
     def _applyConfig(self):
-        cnt = int(self._cntEntry.get())
+        cnt = self.getCnt()
         bits = int(self._bitsCbo.get())
         check = True if self._checkCbo.get() == "sum" else False
         self._recv.setConfig(cnt=cnt, bits=bits, checksum=check)
@@ -75,7 +96,6 @@ if __name__ == "__main__":
     root = style.master
 
     recv = FBFloatRecvGUI(root)
-    recv.loadConfig()
     recv.pack()
 
     root.protocol("WM_DELETE_WINDOW", lambda: (recv.saveConfig(), root.destroy()))

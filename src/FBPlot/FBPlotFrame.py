@@ -58,7 +58,7 @@ class FBPlotFrame(ttk.Frame):
         ttk.Label(self._opFrame, text="上限").pack(side="left", padx=5, pady=5)
         self._yhighEntry.pack(side="left", padx=5, pady=5)
 
-        self.applyDataConfig()
+        # self.applyDataConfig()
 
         self._animation = animation.FuncAnimation(self._fig, self._updatePlot, interval=100, blit=False)
 
@@ -74,7 +74,21 @@ class FBPlotFrame(ttk.Frame):
         self._x = np.arange(self.samplecnt)
         self._y = np.zeros((self.samplecnt, self.datacnt), dtype=np.float32)
         self._lines: List[plt.Line2D] = self._ax.plot(self._x, self._y)
+        self._visible = [False] * self.datacnt
+        for line in self._lines:
+            line.remove()
         self._updateFlag = False
+
+    def setVisible(self, idx: int, visible: bool):
+        if self._visible[idx] == visible:
+            return
+        self._visible[idx] = visible
+        if visible:
+            self._ax.add_line(self._lines[idx])
+        else:
+            self._lines[idx].remove()
+        if self._autoscaleCheckButton.instate(["selected"]):
+            self._autoscale()
 
     def updateData(self, data: List[float]):
         with self._dataLock:
@@ -123,6 +137,7 @@ if __name__ == "__main__":
     root = tk.Tk()
     frame = FBPlotFrame(root)
     frame.pack(fill="both", expand=True)
+    frame.applyDataConfig()
 
     server = FBServer()
     recv = FBFloatRecv()
