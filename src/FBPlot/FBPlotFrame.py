@@ -55,6 +55,9 @@ class FBPlotFrame(ttk.Frame):
         self._yhighEntry.pack(side="left", padx=5, pady=5)
         self._applyYButton.pack(side="left", padx=5, pady=5)
 
+        self._pauseButton = ttk.Checkbutton(self._opFrame, text="暂停", bootstyle=("success", "outline", "toolbutton"))
+        self._pauseButton.pack(side="left", padx=5, pady=5)
+
         # self.applyDataConfig()
 
         self._animation = animation.FuncAnimation(self._fig, self._updatePlot, interval=100, blit=False)
@@ -88,6 +91,8 @@ class FBPlotFrame(ttk.Frame):
             self._autoscale()
 
     def updateData(self, data: List[float]):
+        if self._pauseButton.instate(["selected"]):
+            return
         with self._dataLock:
             self._y = np.roll(self._y, -1, 0)
             self._y[-1, :] = data
