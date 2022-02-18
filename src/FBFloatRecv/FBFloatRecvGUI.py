@@ -12,35 +12,49 @@ CFG_PATH = os.path.join(CFG_DIR, "FBFloatRecvGUI.json")
 
 
 class FBFloatRecvGUI(ttk.Frame):
-    def __init__(self, master=None, **kw):
+    def __init__(self, master=None, is_vertical=True, **kw):
         super().__init__(master, **kw)
         self._recv = FBFloatRecv()
         self.input = self._recv.input
         self.registerRecvCallback = self._recv.registerRecvCallback
         self.start = self._recv.start
 
-        ttk.Label(self, text="个数").grid(row=0, column=0, sticky="w")
+        cntLabel = ttk.Label(self, text="个数")
         self._cntEntry = ValEntry(lambda s: s.isdigit() and int(s) > 0, self, width=5)
-        self._cntEntry.grid(row=0, column=1, sticky="we")
 
-        ttk.Label(self, text="位数").grid(row=1, column=0, sticky="w")
+        bitsLabel = ttk.Label(self, text="位数")
         self._bitsCbo = ttk.Combobox(self, width=4, state="readonly", values=[4, 8])
         self._bitsCbo.current(0)
-        self._bitsCbo.grid(row=1, column=1, sticky="we")
 
-        ttk.Label(self, text="校验").grid(row=2, column=0, sticky="w")
+        checkLabel = ttk.Label(self, text="校验")
         self._checkCbo = ttk.Combobox(self, width=4, state="readonly", values=["sum", "none"])
         self._checkCbo.current(0)
-        self._checkCbo.grid(row=2, column=1, sticky="we")
 
         extra = self.extraBody(self)
-        if extra is not None:
-            extra.grid(row=3, column=0, columnspan=2, sticky="we")
 
         self._cbs: callable = []
-        ttk.Button(self, text="应用", command=self._clickCB).grid(
-            row=3 + (extra is not None), column=0, columnspan=2, sticky="we"
-        )
+        applyButton = ttk.Button(self, text="应用", command=self._clickCB)
+
+        if is_vertical:
+            cntLabel.grid(row=0, column=0, sticky="w")
+            self._cntEntry.grid(row=0, column=1, sticky="we")
+            bitsLabel.grid(row=1, column=0, sticky="w")
+            self._bitsCbo.grid(row=1, column=1, sticky="we")
+            checkLabel.grid(row=2, column=0, sticky="w")
+            self._checkCbo.grid(row=2, column=1, sticky="we")
+            if extra is not None:
+                extra.grid(row=3, column=0, columnspan=2, sticky="we")
+            applyButton.grid(row=3 + (extra is not None), column=0, columnspan=2, sticky="we")
+        else:
+            cntLabel.pack(side="left")
+            self._cntEntry.pack(side="left", padx=2)
+            bitsLabel.pack(side="left")
+            self._bitsCbo.pack(side="left", padx=2)
+            checkLabel.pack(side="left")
+            self._checkCbo.pack(side="left", padx=2)
+            if extra is not None:
+                extra.pack(side="left")
+            applyButton.pack(side="left", padx=2)
 
         self.loadConfig()
 
