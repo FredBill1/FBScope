@@ -42,21 +42,18 @@ class FBPlotFrame(ttk.Frame):
         self._autoscaleCheckButton.state(["selected"])
         self._autoscaleCheckButton.pack(side="left", padx=5, pady=5)
 
-        def _valFloat(s: str) -> bool:
-            try:
-                float(s)
-                return True
-            except ValueError:
-                return False
+        self._ylowEntry = ValEntry(ValEntry.type_validator(float), self._opFrame, text="-1.0", width=7)
+        self._yhighEntry = ValEntry(ValEntry.type_validator(float), self._opFrame, text="1.0", width=7)
+        self._applyYButton = ttk.Button(self._opFrame, text="应用", command=self._fixedscale)
 
-        self._ylowEntry = ValEntry(_valFloat, self._opFrame, text="-1.0", width=7)
-        self._yhighEntry = ValEntry(_valFloat, self._opFrame, text="1.0", width=7)
         for entry in (self._ylowEntry, self._yhighEntry):
             entry.bind("<Return>", self._fixedscale)
+
         ttk.Label(self._opFrame, text="y轴范围: 下限").pack(side="left", padx=5, pady=5)
         self._ylowEntry.pack(side="left", padx=5, pady=5)
         ttk.Label(self._opFrame, text="上限").pack(side="left", padx=5, pady=5)
         self._yhighEntry.pack(side="left", padx=5, pady=5)
+        self._applyYButton.pack(side="left", padx=5, pady=5)
 
         # self.applyDataConfig()
 
@@ -100,10 +97,12 @@ class FBPlotFrame(ttk.Frame):
         if self._autoscaleCheckButton.instate(["selected"]):
             self._ylowEntry.state(["disabled"])
             self._yhighEntry.state(["disabled"])
+            self._applyYButton.state(["disabled"])
             self._autoscale()
         else:
             self._ylowEntry.state(["!disabled"])
             self._yhighEntry.state(["!disabled"])
+            self._applyYButton.state(["!disabled"])
             self._fixedscale()
 
     def _fixedscale(self, *_):
