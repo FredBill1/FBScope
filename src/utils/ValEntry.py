@@ -15,7 +15,10 @@ class ValEntry(ttk.Entry):
         self._pred = pred
         self._preval = ""
         self._var = tk.StringVar() if textvariable is None else textvariable
+        if textvariable is not None:
+            self._preval = textvariable.get()
         if text is not None:
+            self._preval = text
             self._var.set(text)
         super().__init__(master, textvariable=self._var, validate="focusout", validatecommand=self._validator, **kwargs)
         self.get = self._var.get
