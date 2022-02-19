@@ -79,6 +79,9 @@ class FBFloatRecv:
                 if checksum and sum(tmp) & 255 != self.getchar(as_int=True):
                     return None
                 res[i] = struct.unpack("f" if self.bits == 4 else "d", bytes(tmp))[0]
+                with self._configLock:
+                    if self.cnt != cnt or self.bits != bits or self.checksum != checksum:
+                        return None
             return res
         except queue.Empty:
             return None
