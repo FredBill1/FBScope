@@ -40,7 +40,7 @@ class ValEntry(ttk.Entry):
             self._validator()
             return func(arg)
 
-        super().bind(event, wrapper, add)
+        return super().bind(event, wrapper, add)
 
     @staticmethod
     def type_validator(Type: callable) -> Callable[[str], bool]:
