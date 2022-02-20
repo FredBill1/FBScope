@@ -45,8 +45,7 @@ class FBFloatRecv:
 
     def shutdown(self) -> None:
         self._running = False
-
-        self._recvThread.join()
+        # self._recvThread.join()
 
     def _waitHeader(self) -> None:
         tmp = [0] * 4
