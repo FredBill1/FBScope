@@ -14,6 +14,7 @@ class FBFloatRecv:
         self._curIdx = 0
 
         self.HEADER = b"\x00\xff\x80\x7f"
+        self.id = -1
         self.cnt = 1
         self.bits = 4
         self.checksum = True
@@ -24,9 +25,15 @@ class FBFloatRecv:
         self._instantPut(self._inputBuf, data)
 
     def setConfig(
-        self, cnt: Optional[int] = None, bits: Optional[int] = None, checksum: Optional[bool] = None,
+        self,
+        id: Optional[int] = None,
+        cnt: Optional[int] = None,
+        bits: Optional[int] = None,
+        checksum: Optional[bool] = None,
     ) -> None:
         with self._configLock:
+            if id is not None:
+                self.id = id
             if cnt is not None:
                 self.cnt = cnt
             if bits is not None:
@@ -61,6 +68,7 @@ class FBFloatRecv:
 
     def recv(self) -> List[float]:
         with self._configLock:
+            id = self.id
             cnt = self.cnt
             bits = self.bits
             checksum = self.checksum
@@ -68,6 +76,9 @@ class FBFloatRecv:
             self._waitHeader()
             if not self._running:
                 return None
+            if self.id != -1:
+                if id != self.getchar(as_int=True):
+                    return None
             res = [None] * cnt
             for i in range(cnt):
                 tmp = [None] * bits
@@ -79,7 +90,7 @@ class FBFloatRecv:
                     return None
                 res[i] = struct.unpack("f" if self.bits == 4 else "d", bytes(tmp))[0]
                 with self._configLock:
-                    if self.cnt != cnt or self.bits != bits or self.checksum != checksum:
+                    if id != self.id or self.cnt != cnt or self.bits != bits or self.checksum != checksum:
                         return None
             return res
         except queue.Empty:

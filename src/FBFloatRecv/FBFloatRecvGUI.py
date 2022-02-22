@@ -19,6 +19,11 @@ class FBFloatRecvGUI(ttk.Frame):
         self.registerRecvCallback = self._recv.registerRecvCallback
         self.start = self._recv.start
 
+        idLabel = ttk.Label(self, text="ID")
+        self._idCbo = ttk.Combobox(self, width=4, state="readonly", values=["无"] + list(range(256)))
+        self._idCbo.current(0)
+        self._idCbo.bind("<<ComboboxSelected>>", self._applyID)
+
         cntLabel = ttk.Label(self, text="个数")
         self._cntEntry = ValEntry(lambda s: s.isdigit() and int(s) > 0, self, width=5)
 
@@ -36,16 +41,20 @@ class FBFloatRecvGUI(ttk.Frame):
         applyButton = ttk.Button(self, text="应用", command=self._clickCB)
 
         if is_vertical:
-            cntLabel.grid(row=0, column=0, sticky="w")
-            self._cntEntry.grid(row=0, column=1, sticky="we")
-            bitsLabel.grid(row=1, column=0, sticky="w")
-            self._bitsCbo.grid(row=1, column=1, sticky="we")
-            checkLabel.grid(row=2, column=0, sticky="w")
-            self._checkCbo.grid(row=2, column=1, sticky="we")
+            idLabel.grid(row=0, column=0, sticky="w")
+            self._idCbo.grid(row=0, column=1, sticky="w")
+            cntLabel.grid(row=1, column=0, sticky="w")
+            self._cntEntry.grid(row=1, column=1, sticky="we")
+            bitsLabel.grid(row=2, column=0, sticky="w")
+            self._bitsCbo.grid(row=2, column=1, sticky="we")
+            checkLabel.grid(row=3, column=0, sticky="w")
+            self._checkCbo.grid(row=3, column=1, sticky="we")
             if extra is not None:
-                extra.grid(row=3, column=0, columnspan=2, sticky="we")
-            applyButton.grid(row=3 + (extra is not None), column=0, columnspan=2, sticky="we")
+                extra.grid(row=4, column=0, columnspan=2, sticky="we")
+            applyButton.grid(row=4 + (extra is not None), column=0, columnspan=2, sticky="we")
         else:
+            idLabel.pack(side="left")
+            self._idCbo.pack(side="left", padx=2)
             cntLabel.pack(side="left")
             self._cntEntry.pack(side="left", padx=2)
             bitsLabel.pack(side="left")
@@ -69,32 +78,52 @@ class FBFloatRecvGUI(ttk.Frame):
         for cb in self._cbs:
             cb()
 
+    def getID(self):
+        return self._idCbo.current() - 1
+
     def getCnt(self):
         return int(self._cntEntry.get())
 
     def _applyConfig(self):
-        cnt = self.getCnt()
-        bits = int(self._bitsCbo.get())
-        check = True if self._checkCbo.get() == "sum" else False
-        self._recv.setConfig(cnt=cnt, bits=bits, checksum=check)
+        id = self.getID()
+        self.cfg["id"] = str(id)
+        cfg = self.cfg["cfg"][str(id)]
+        cnt = cfg["cnt"] = self.getCnt()
+        bits = cfg["bits"] = int(self._bitsCbo.get())
+        check = cfg["check"] = self._checkCbo.get()
+        self._recv.setConfig(id=id, cnt=cnt, bits=bits, checksum=check == "sum")
+
+    @staticmethod
+    def _getDefualtCfg():
+        return {"cnt": 1, "bits": 4, "check": "sum"}
+
+    def _applyID(self, *_):
+        cfg = self.cfg["cfg"].setdefault(str(self.getID()), self._getDefualtCfg())
+        self._cntEntry.set(str(cfg["cnt"]))
+        self._bitsCbo.current(0 if cfg["bits"] == 4 else 1)
+        self._checkCbo.current(0 if cfg["check"] == "sum" else 1)
 
     def loadConfig(self):
         os.makedirs(CFG_DIR, exist_ok=True)
-        cfg = {}
+        self.cfg = {}
         if os.path.exists(CFG_PATH):
             with open(CFG_PATH, "r") as f:
-                cfg = json.load(f)
-        self._cntEntry.set(cfg.get("cnt", "1"))
-        self._bitsCbo.current(0 if cfg.get("bits", 4) == "4" else 1)
-        self._checkCbo.current(0 if cfg.get("check", "sum") == "sum" else 1)
+                self.cfg = json.load(f)
+        id = self.cfg.setdefault("id", "-1")
+        self._idCbo.current(int(id) + 1)
+        self.cfg.setdefault("cfg", {})
+        self._applyID()
         self._applyConfig()
 
-    def toDict(self):
-        return {"cnt": self._cntEntry.get(), "bits": self._bitsCbo.get(), "check": self._checkCbo.get()}
-
     def saveConfig(self):
+        res = {"id": self.cfg["id"], "cfg": {}}
+        defaultCfg = self._getDefualtCfg()
+        for id, cfg in self.cfg["cfg"].items():
+            if cfg != defaultCfg:
+                res["cfg"][id] = cfg
+
         with open(CFG_PATH, "w") as f:
-            json.dump(self.toDict(), f)
+            json.dump(res, f)
 
     def shutdown(self):
         self.saveConfig()

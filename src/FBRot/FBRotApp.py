@@ -28,7 +28,7 @@ class FBRotApp:
         self._root.rowconfigure(0, weight=1)
         self._root.columnconfigure(0, weight=1)
         self._root.protocol("WM_DELETE_WINDOW", self.shutdown)
-        self._root.geometry("588x588+150+150")
+        self._root.geometry("608x588+150+150")
 
         self._drawLock = threading.Lock()
         self._dataLock = threading.Lock()
@@ -49,8 +49,6 @@ class FBRotApp:
         ttk.Label(recvFrame, text="接收器:").pack(side="left")
         self._recvGUI = FBFloatRecvGUI(recvFrame, is_vertical=False)
         self._recvGUI.pack(side="left", padx=5, pady=5)
-        self._pauseButton = ttk.Checkbutton(recvFrame, text="暂停", bootstyle=("success", "outline", "toolbutton"))
-        self._pauseButton.pack(side="left", padx=3, pady=5)
 
         self._client = FBServer() if isServer else FBClient()
         self._client.registerRecvCallback(self._recvGUI.input)
@@ -79,7 +77,7 @@ class FBRotApp:
         self._modeCombo = ttk.Combobox(dataFrame, width=10, state="readonly", values=self.modes)
         self._modeCombo.current(0)
         _validate = lambda s: all(v.strip() == "_" or ValEntry.type_validator(int)(v.strip()) for v in s.split(","))
-        self._dataEntry = ValEntry(_validate, dataFrame, text="0,1,2", width=45)
+        self._dataEntry = ValEntry(_validate, dataFrame, text="0,1,2", width=40)
         self._dataEntry.bind("<Return>", self._applyData)
 
         ttk.Label(dataFrame, text="模式:").pack(side="left", pady=5)
@@ -87,6 +85,10 @@ class FBRotApp:
         ttk.Label(dataFrame, text="数据索引:").pack(side="left", pady=5)
         self._dataEntry.pack(side="left", padx=3, pady=5)
         ttk.Button(dataFrame, text="应用", command=self._applyData).pack(side="left", padx=5, pady=5)
+
+        self._pauseButton = ttk.Checkbutton(dataFrame, text="暂停", bootstyle=("success", "outline", "toolbutton"))
+        self._pauseButton.pack(side="left", padx=4, pady=5)
+
         self._collection3Ds = []
         self._init_ax()
         self._applyData()
