@@ -16,7 +16,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__)))
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from FBSocket import FBClient, FBServer
-from FBFloatRecv import FBFloatRecvGUI
+from FBRecv import FBFloatRecvGUI
 from utils import ValEntry
 
 

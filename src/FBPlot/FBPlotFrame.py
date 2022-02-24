@@ -136,7 +136,7 @@ class FBPlotFrame(ttk.Frame):
 if __name__ == "__main__":
 
     from FBSocket import FBServer
-    from FBFloatRecv import FBFloatRecv
+    from FBRecv import FBFloatRecv
 
     root = tk.Tk()
     frame = FBPlotFrame(root)

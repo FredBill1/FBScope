@@ -9,7 +9,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__)))
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from FBPlotFrame import FBPlotFrame
-from FBFloatRecv import FBFloatRecvGUI
+from FBRecv import FBFloatRecvGUI
 from FBSocket import FBClient, FBServer
 from utils import ValEntry
 
