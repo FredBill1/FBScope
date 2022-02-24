@@ -2,7 +2,7 @@ import sys, os, os.path
 import ttkbootstrap as ttk
 import json
 
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(os.path.dirname(__file__))
 from FBFloatRecv import FBFloatRecv
 from utils import ValEntry
 
@@ -12,9 +12,9 @@ CFG_PATH = os.path.join(CFG_DIR, "FBFloatRecvGUI.json")
 
 
 class FBFloatRecvGUI(ttk.Frame):
-    def __init__(self, master=None, is_vertical=True, **kw):
+    def __init__(self, master=None, is_vertical=True, queue_size: int = 10, **kw):
         super().__init__(master, **kw)
-        self._recv = FBFloatRecv()
+        self._recv = FBFloatRecv(queue_size=queue_size)
         self.input = self._recv.input
         self.registerRecvCallback = self._recv.registerRecvCallback
         self.start = self._recv.start
