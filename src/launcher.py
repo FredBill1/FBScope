@@ -4,7 +4,7 @@ from sys import executable
 from subprocess import Popen, DETACHED_PROCESS
 
 DIR = dirname(__file__)
-APPs = ["FBSerial", "FBPlot", "FBPanel", "FBRot"]
+APPs = ["FBSerial", "FBPlot", "FBPanel", "FBRot", "FBImg"]
 
 if __name__ == "__main__":
     style = ttk.Style("cosmo")
