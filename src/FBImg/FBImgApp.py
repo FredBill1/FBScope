@@ -1,18 +1,21 @@
 import ttkbootstrap as ttk
 import os, os.path, sys
 import json
+from tkinter import filedialog
 import tkinter as tk
 import numpy as np
 import cv2 as cv
 from PIL import ImageTk, Image
 import threading
+import datetime
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from FBSocket import FBClient, FBServer
 from utils import ValEntry
 from FBRecv import FBRawRecv
 
-
+SAVE_DIR = os.path.expanduser("~/Desktop")
+SAVE_EXT = ".png"
 CFG_DIR = os.path.expanduser("~/.FBScope")
 CFG_PATH = os.path.join(CFG_DIR, "FBImg.json")
 
@@ -44,10 +47,25 @@ class FBImgApp:
         ttk.Label(imgFrame, text="高度").pack(side="left", pady=5)
         self.hEntry = ValEntry(val, imgFrame, width=5)
         self.hEntry.pack(side="left", pady=5)
-        ttk.Button(imgFrame, text="应用", command=self._apply_size).pack(side="left", padx=5, pady=5)
+        ttk.Button(imgFrame, text="应用", command=self._applySize).pack(side="left", padx=2, pady=5)
 
         self._pauseButton = ttk.Checkbutton(imgFrame, text="暂停", bootstyle=("success", "outline", "toolbutton"))
-        self._pauseButton.pack(side="left", padx=4, pady=5)
+        self._pauseButton.pack(side="left", padx=5, pady=5)
+
+        ttk.Label(imgFrame, text="保存路径").pack(side="left", pady=5)
+        self._dirEntry = ttk.Entry(imgFrame, width=30)
+        self._dirEntry.pack(side="left", pady=5)
+
+        ttk.Button(imgFrame, text="选择", command=self._selectDir).pack(side="left", pady=5)
+
+        self._saveButton = ttk.Button(imgFrame, text="保存", bootstyle=("success"), command=self.saveImg)
+        self._saveButton.pack(side="left", padx=5, pady=5)
+        self._recordButton = ttk.Checkbutton(
+            imgFrame, text="录制", command=self._toggleRecord, bootstyle=("warning", "outline", "toolbutton")
+        )
+        self._recordButton.pack(side="left", pady=5)
+        self._cntLabel = ttk.Label(imgFrame)
+        self._cntLabel.pack(side="left", pady=5)
 
         self._client = FBServer() if isServer else FBClient()
         self._recv = FBRawRecv()
@@ -56,7 +74,44 @@ class FBImgApp:
         self._recv.registerRecvCallback(self.updateData)
 
         self._imgLock = threading.Lock()
+        self._dirLock = threading.Lock()
         self.loadConfig()
+
+    def _toggleRecord(self, *_):
+        if self._recordButton.instate(["selected"]):
+            self._saveButton.config(state="disabled")
+            self._recordButton.config(text="停止")
+        else:
+            self._saveButton.config(state="!disabled")
+            self._recordButton.config(text="录制")
+
+    def _updateDir(self):
+        os.makedirs(self.save_dir, exist_ok=True)
+        self._dirEntry.config(state="normal")
+        self._dirEntry.delete(0, tk.END)
+        self._dirEntry.insert(0, self.save_dir)
+        self._dirEntry.config(state="readonly")
+
+    def _selectDir(self, *_):
+        with self._dirLock:
+            cur = self.save_dir
+        s = filedialog.askdirectory(master=self._root, initialdir=cur, title="选择保存路径", mustexist=False)
+        if not s:
+            return
+        with self._dirLock:
+            self.save_dir = s
+        self._updateDir()
+
+    def saveImg(self, *_):
+        def save():
+            with self._imgLock:
+                img = self.img
+            with self._dirLock:
+                Dir = self.save_dir
+            name = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S-%f") + SAVE_EXT
+            cv.imwrite(os.path.join(Dir, name), img)
+
+        threading.Thread(target=save).start()
 
     def updateData(self, data: bytes) -> None:
         if self._pauseButton.instate(["selected"]):
@@ -69,8 +124,10 @@ class FBImgApp:
                 return
             self.img = img
             self._updateFlag = True
+        if self._recordButton.instate(["selected"]):
+            self.saveImg()
 
-    def _apply_size(self):
+    def _applySize(self):
         with self._imgLock:
             self.w, self.h = int(self.wEntry.get()), int(self.hEntry.get())
             self.img = np.zeros((self.h, self.w), dtype=np.uint8)
@@ -83,13 +140,14 @@ class FBImgApp:
         if os.path.exists(CFG_PATH):
             with open(CFG_PATH, "r") as f:
                 cfg = json.load(f)
-        self._root.geometry(cfg.get("geometry", "400x300+30+30"))
+        self._root.geometry(cfg.get("geometry", "876x600+30+30"))
         self.w = cfg.get("w", 752)
         self.h = cfg.get("h", 480)
         self.wEntry.set(str(self.w))
         self.hEntry.set(str(self.h))
-        self.save_dir = cfg.get("save_dir", CFG_DIR)
-        self._apply_size()
+        self.save_dir = cfg.get("save_dir", SAVE_DIR)
+        self._updateDir()
+        self._applySize()
 
     def saveConfig(self):
         cfg = {"geometry": self._root.geometry(), "w": self.w, "h": self.h, "save_dir": self.save_dir}
