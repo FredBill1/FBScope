@@ -46,6 +46,9 @@ class FBImgApp:
         self.hEntry.pack(side="left", pady=5)
         ttk.Button(imgFrame, text="应用", command=self._apply_size).pack(side="left", padx=5, pady=5)
 
+        self._pauseButton = ttk.Checkbutton(imgFrame, text="暂停", bootstyle=("success", "outline", "toolbutton"))
+        self._pauseButton.pack(side="left", padx=4, pady=5)
+
         self._client = FBServer() if isServer else FBClient()
         self._recv = FBRawRecv()
 
@@ -56,6 +59,8 @@ class FBImgApp:
         self.loadConfig()
 
     def updateData(self, data: bytes) -> None:
+        if self._pauseButton.instate(["selected"]):
+            return
         with self._imgLock:
             w, h = self.w, self.h
         img = np.frombuffer(data, dtype=np.uint8).reshape((h, w))
