@@ -58,7 +58,7 @@ class FBFloatRecv(FBRecv):
             self._waitHeader()
             if not self._running:
                 return None
-            if self.id != -1:
+            if id != -1:
                 if id != self.getchar(as_int=True):
                     return None
             res = [None] * cnt
@@ -70,7 +70,7 @@ class FBFloatRecv(FBRecv):
                         return None
                 if checksum and sum(tmp) & 255 != self.getchar(as_int=True):
                     return None
-                res[i] = struct.unpack("f" if self.bits == 4 else "d", bytes(tmp))[0]
+                res[i] = struct.unpack("f" if bits == 4 else "d", bytes(tmp))[0]
                 with self._configLock:
                     if id != self.id or self.cnt != cnt or self.bits != bits or self.checksum != checksum:
                         return None
