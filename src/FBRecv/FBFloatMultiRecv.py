@@ -1,5 +1,5 @@
 import queue
-from typing import List, Callable, Optional, Dict, Tuple
+from typing import List, Callable, Optional, Dict, Tuple, Iterable
 import struct
 import threading
 import sys, os, os.path
@@ -7,7 +7,9 @@ from collections import defaultdict
 from dataclasses import dataclass, astuple
 
 sys.path.append(os.path.dirname(__file__))
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from FBRecv import FBRecv
+from FBCSV import FBCSVReader
 
 
 @dataclass
@@ -90,6 +92,14 @@ class FBFloatMultiRecv(FBRecv):
                     break
                 cb(data)
 
+    def loadCfg(self, cfgs: Iterable[Tuple[int, int, int, int]]):
+        for cfg in cfgs:
+            self.setConfig(*map(int, cfg))  # id, cnt, bits, checksum
+
+    def loadCfgFromCSV(self, filename: str):
+        with FBCSVReader(filename) as reader:
+            self.loadCfg(reader)
+
 
 __all__ = ["FBFloatMultiRecv", "FBFloatMultiRecvCfg"]
 
@@ -102,7 +112,9 @@ if __name__ == "__main__":
     server.registerRecvCallback(recv.input)
     recv.registerRecvCallback(1, lambda x: print("1", x))
     recv.registerRecvCallback(2, lambda x: print("2", x))
-    recv.setConfig(1, cnt=2)
+    # recv.setConfig(1, cnt=2)
+    recv.loadCfgFromCSV(os.path.join(os.path.dirname(__file__), "_FBFloatMultiRecvTestCfg.csv"))
+    print(recv._recvCfgs)
 
     recv.start()
     server.start()
