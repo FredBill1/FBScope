@@ -60,7 +60,7 @@ class FBPlotFrame(ttk.Frame):
 
         # self.applyDataConfig()
 
-        self._animation = animation.FuncAnimation(self._fig, self._updatePlot, interval=100, blit=False)
+        self._animation = animation.FuncAnimation(self._fig, self._updatePlot, interval=100, blit=True)
 
     def applyDataConfig(self):
         with self._dataLock:
@@ -125,12 +125,14 @@ class FBPlotFrame(ttk.Frame):
 
     def _updatePlot(self, *_):
         with self._dataLock:
-            if self._updateFlag:
-                self._updateFlag = False
-                for i, line in enumerate(self._lines):
-                    line.set_ydata(self._y[:, i])
-                if self._autoscaleCheckButton.instate(["selected"]):
-                    self._autoscale()
+            if not self._updateFlag:
+                return []
+            self._updateFlag = False
+            for i, line in enumerate(self._lines):
+                line.set_ydata(self._y[:, i])
+            if self._autoscaleCheckButton.instate(["selected"]):
+                self._autoscale()
+            return (line for vis, line in zip(self._visible, self._lines) if vis)
 
 
 if __name__ == "__main__":
