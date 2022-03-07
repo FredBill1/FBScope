@@ -22,9 +22,14 @@ class FBFloatMultiRecvCfg:
 class FBFloatMultiRecv(FBRecv):
     def __init__(self, queue_size: int = 10):
         super().__init__(queue_size=queue_size)
+        self._recvAllCBs: List[Callable[[int, List[float]], None]] = []
         self._recvCBs: Dict[int, List[Callable[[List[float]], None]]] = defaultdict(list)
         self._recvCfgs: Dict[int, FBFloatMultiRecvCfg] = defaultdict(FBFloatMultiRecvCfg)
         self._configLock = threading.Lock()
+
+    def resetConfig(self):
+        with self._configLock:
+            self._recvCfgs.clear()
 
     def setConfig(
         self, id: int, cnt: Optional[int] = None, bits: Optional[int] = None, checksum: Optional[bool] = None,
@@ -54,7 +59,7 @@ class FBFloatMultiRecv(FBRecv):
                 return None
             id = self.getchar(as_int=True)
             with self._configLock:
-                if not (id in self._recvCBs):
+                if not (id in self._recvCBs or id in self._recvCfgs):
                     return None
                 cnt, bits, checksum = astuple(self._recvCfgs[id])
             res = [None] * cnt
@@ -81,12 +86,21 @@ class FBFloatMultiRecv(FBRecv):
             raise ValueError("id 只能是 0~255")
         self._recvCBs[id].append(worker)
 
+    def registerRecvAllCallback(self, worker: Callable[[int, List[float]], None]) -> None:
+        if self._running:
+            raise RuntimeError("开始运行后不能注册新的回调函数")
+        self._recvAllCBs.append(worker)
+
     def _recvThreadEntry(self) -> None:
         while self._running:
             data = self.recv()
             if data is None:
                 continue
             id, data = data
+            for cb in self._recvAllCBs:
+                if not self._running:
+                    break
+                cb(id, data)
             for cb in self._recvCBs[id]:
                 if not self._running:
                     break

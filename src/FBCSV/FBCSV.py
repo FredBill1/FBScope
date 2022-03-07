@@ -24,7 +24,7 @@ class FBCSVWriter:
 
     def write(self, data: Iterable[str]):
         if not self._running:
-            raise RuntimeError("Writer is closed")
+            return
         self._Q.put(data)
 
     def close(self):
