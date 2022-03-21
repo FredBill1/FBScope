@@ -76,11 +76,20 @@ class FBWidgetCmdTable(tk.Toplevel):
         self.tree.bind("<Double-1>", self._onDoubleClick)
         self.btn_close = ttk.Button(self.buttonFrame, text="关闭", command=master.destroyCmdTable)
         self.btn_add = ttk.Button(self.buttonFrame, text="添加", command=self._add)
+        self.btn_dup = ttk.Button(self.buttonFrame, text="复制", command=self._dup)
         self.btn_del = ttk.Button(self.buttonFrame, text="删除", command=self._delete)
         self.btn_edit = ttk.Button(self.buttonFrame, text="编辑", command=self._edit)
         self.btn_up = ttk.Button(self.buttonFrame, text="上移", command=self._up)
         self.btn_down = ttk.Button(self.buttonFrame, text="下移", command=self._down)
-        for btn in (self.btn_close, self.btn_add, self.btn_del, self.btn_edit, self.btn_up, self.btn_down):
+        for btn in (
+            self.btn_close,
+            self.btn_add,
+            self.btn_dup,
+            self.btn_del,
+            self.btn_edit,
+            self.btn_up,
+            self.btn_down,
+        ):
             btn.pack(side="left", expand=True)
 
         self._state = "!disabled"
@@ -101,7 +110,7 @@ class FBWidgetCmdTable(tk.Toplevel):
         if self._state == state:
             return
         self._state = state
-        for btn in (self.btn_del, self.btn_edit, self.btn_up, self.btn_down):
+        for btn in (self.btn_dup, self.btn_del, self.btn_edit, self.btn_up, self.btn_down):
             btn["state"] = state
 
     def _onSelect(self, event):
@@ -123,6 +132,14 @@ class FBWidgetCmdTable(tk.Toplevel):
 
     def getItem(self, item: str):
         return [str(v) for v in self.tree.item(item)["values"]]
+
+    def _dup(self):
+        cur = self.tree.focus()
+        res = self.getItem(cur)
+        res[0] = f"{res[0]}-{len(self.cmdDict)+1}"
+        cur = self.tree.insert("", int(cur[1:]), values=res)
+        self.cmdDict[res[0]] = (res[1], res[2])
+        self.master.registerCallback(*res)
 
     def _edit(self, creating=False):
         pre = res = self.getItem(self.tree.focus())
