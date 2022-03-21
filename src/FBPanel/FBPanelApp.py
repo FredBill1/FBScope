@@ -43,7 +43,7 @@ class FBPanelApp:
         for canvas in self.tabs.canvases:
             canvas.destroyCmdTable()
         with open(CFG_PATH, "w") as f:
-            json.dump(self.toDict(), f)
+            json.dump(self.toDict(), f, indent=4)
         self.root.destroy()
 
 
