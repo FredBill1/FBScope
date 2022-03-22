@@ -112,9 +112,15 @@ class DNDCanvas(tk.Canvas):
     def dnd_accept(self, source, event):
         return self
 
+    @staticmethod
+    def _align_coords(*args):
+        ALIGN = 8
+        return map(lambda x: (x + ALIGN // 2) // ALIGN * ALIGN, args)
+
     def dnd_enter(self, source, event):
         self.focus_set()  # Show highlight border
         x, y = source.where(self, event)
+        x, y = self._align_coords(x, y)
         x1, y1, x2, y2 = source.canvas.bbox(source.dndid)
         dx, dy = x2 - x1, y2 - y1
         self.dndid = self.create_rectangle(x, y, x + dx, y + dy)
@@ -122,6 +128,7 @@ class DNDCanvas(tk.Canvas):
 
     def dnd_motion(self, source: DNDBase, event):
         x, y = source.where(self, event)
+        x, y = self._align_coords(x, y)
         x1, y1, x2, y2 = self.bbox(self.dndid)
         self.move(self.dndid, x - x1, y - y1)
 
@@ -133,7 +140,7 @@ class DNDCanvas(tk.Canvas):
     def dnd_commit(self, source, event):
         self.dnd_leave(source, event)
         x, y = source.where(self, event)
-        source.attach(self, x, y)
+        source.attach(self, *self._align_coords(x, y))
 
 
 __all__ = ["DNDBase", "DNDCanvas"]
