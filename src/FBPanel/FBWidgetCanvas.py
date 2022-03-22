@@ -59,11 +59,14 @@ class FBWidgetCanvas(DNDCanvas):
             self._callback(f"<{event.char}>", "release")
 
     def _checkPeriod(self, name: str) -> bool:
-        key = name[1:-1]
-        if "event" == "space":
-            return self._spacePressed
+        if (name.startswith("<") and name.endswith(">") and len(name) == 3) or name == "<space>":
+            key = name[1:-1]
+            if key == "space":
+                return self._spacePressed
+            else:
+                return self._pressed[ord(key) - ord("a")]
         else:
-            return self._pressed[ord(key) - ord("a")]
+            return self.widgets[name].checkPeriod()
 
     def _callback(self, name: str, event: str) -> None:
         cur = f"{name}.{event}"

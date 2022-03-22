@@ -24,7 +24,13 @@ class FBWidget(DNDBase):
         canvas.widgets.pop(self.name, None)
 
     def _callback(self, event: str) -> None:
+        if self._dragable:
+            return
         self.canvas._callback(self.name, event)
+
+    def checkPeriod(self) -> bool:
+        "检查是否应该继续执行指令的周期性调用"
+        raise NotImplementedError()
 
     def rename(self):
         name = simpledialog.askstring("输入名称", "输入名称", initialvalue=self.name, parent=self.frame)
