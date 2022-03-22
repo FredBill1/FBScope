@@ -32,11 +32,14 @@ def interpretCmd(canvas: "FBWidgetCanvas", cmd: str, depth: int = 0) -> Optional
             elif len(variable) == 2:
                 name, attr = variable
                 if name.startswith("<") and name.endswith(">"):
-                    if len(name) == 3 and "a" <= name[1] <= "z":
+                    if (len(name) == 3 and "a" <= name[1] <= "z") or name == "<space>":
+                        state = int(
+                            canvas._pressed[ord(name[1]) - ord("a")] if len(name) == 3 else canvas._spacePressed
+                        )
                         if attr == "pressed":
-                            return canvas._pressed[ord(name[1]) - ord("a")]
+                            return state
                         elif attr == "released":
-                            return not canvas._pressed[ord(name[1]) - ord("a")]
+                            return not state
                         else:
                             messagebox.showerror(
                                 "错误的属性", f"按键`{name}`没有属性`{attr}`\n应为`pressed`或`released`", parent=canvas
