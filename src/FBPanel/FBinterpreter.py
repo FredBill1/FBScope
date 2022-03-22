@@ -110,8 +110,15 @@ def interpretCmd(canvas: "FBWidgetCanvas", cmd: str, depth: int = 0) -> Optional
                 if name not in FBFUNC_DICT:
                     messagebox.showerror("错误的调用", f"函数`{name}`不存在", parent=canvas)
                     return None
-                param = [p.strip() for p in cmd[i + 1 : -1].split(",") if p.strip()]
-                var_cnt = len(param)
+                param = cmd[i + 1 : -1]
+                if not param:
+                    messagebox.showerror("错误的调用", f"函数{name}没有指定参数数量", parent=canvas)
+                    return None
+                try:
+                    var_cnt = int(param)
+                except:
+                    messagebox.showerror("错误的调用", f"函数{name}的参数数量应为整数", parent=canvas)
+                    return None
                 if var_cnt > len(var):
                     messagebox.showerror("错误的变量", f"变量数量少于指令所需数量", parent=canvas)
                     return None
