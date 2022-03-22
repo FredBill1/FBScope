@@ -119,7 +119,7 @@ class FBWidgetCmdTable(tk.Toplevel):
     def _add(self):
         cur = self.tree.focus()
         cur = self.tree.insert(
-            "", "end" if cur == "" else int(cur[1:]), values=(f"新命令{len(self.cmdDict)+1}", "", "", "")
+            "", "end" if cur == "" else int(cur[1:], 16), values=(f"新命令{len(self.cmdDict)+1}", "", "", "")
         )
         self.tree.focus(cur)
         self.tree.selection_set(cur)
@@ -137,7 +137,7 @@ class FBWidgetCmdTable(tk.Toplevel):
         cur = self.tree.focus()
         res = self.getItem(cur)
         res[0] = f"{res[0]}-{len(self.cmdDict)+1}"
-        cur = self.tree.insert("", int(cur[1:]), values=res)
+        cur = self.tree.insert("", int(cur[1:], 16), values=res)
         self.cmdDict[res[0]] = (res[1], res[2])
         self.master.registerCallback(*res)
 
