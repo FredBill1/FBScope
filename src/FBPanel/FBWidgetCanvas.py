@@ -42,11 +42,13 @@ class FBWidgetCanvas(DNDCanvas):
             if not self._spacePressed:
                 self._spacePressed = True
                 self._callback("<space>", "press")
+                self._callback("<space>", "period")
         elif "a" <= event.char <= "z":
             cur = ord(event.char) - ord("a")
             if not self._pressed[cur]:
                 self._pressed[cur] = True
                 self._callback(f"<{event.char}>", "press")
+                self._callback(f"<{event.char}>", "period")
 
     def _keyRelease(self, event):
         if event.char == " ":
@@ -56,23 +58,50 @@ class FBWidgetCanvas(DNDCanvas):
             self._pressed[ord(event.char) - ord("a")] = False
             self._callback(f"<{event.char}>", "release")
 
+    def _checkPeriod(self, name: str) -> bool:
+        key = name[1:-1]
+        if "event" == "space":
+            return self._spacePressed
+        else:
+            return self._pressed[ord(key) - ord("a")]
+
     def _callback(self, name: str, event: str) -> None:
         cur = f"{name}.{event}"
         if cur in self.callbacks:
             for cmd in self.callbacks[cur]:
+                cmd, period = cmd.split("@@")
+                period = int(period)
+                if period > 0 and not self._checkPeriod(name):
+                    continue
+
                 res = interpretCmd(self, cmd)
                 if res is not None:
                     self.master.uartClient.send(res)
                     print("发送:", (" ".join("%02x" % b for b in res)).upper())
+                    if period > 0:
+                        self.after(period, lambda name=name, event=event: self._callback(name, event))
+
+    @staticmethod
+    def getCmd(name: str, command: str, variables: str, binding: str) -> Tuple[str, str]:
+        PERIOD_STR = ">.period("
+        period = 0
+        if binding.endswith(")"):
+            i = binding.find(PERIOD_STR)
+            if i != -1:
+                period_tmp = binding[i + len(PERIOD_STR) : -1]
+                if period_tmp and period_tmp.isdigit():
+                    period = int(period_tmp)
+                    binding = binding[: i + len(PERIOD_STR) - 1]
+        return binding, "$$".join((name, command, variables)) + f"@@{period}"
 
     def registerCallback(self, name: str, command: str, variables: str, bindings: str):
-        cmd = "$$".join((name, command, variables))
         for binding in bindings.split(";"):
+            binding, cmd = self.getCmd(name, command, variables, binding)
             self.callbacks[binding].add(cmd)
 
     def unregisterCallback(self, name: str, command: str, variables: str, bindings: str):
-        cmd = "$$".join((name, command, variables))
         for binding in bindings.split(";"):
+            binding, cmd = self.getCmd(name, command, variables, binding)
             self.callbacks[binding].remove(cmd)
 
     def createCmdTable(self):
