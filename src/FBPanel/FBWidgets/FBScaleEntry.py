@@ -23,6 +23,7 @@ class FBScaleEntry(FBWidget):
 
         self.entry.bind("<Return>", lambda _: self._callback("enter"))
         self.entry.bindUpdate(self._calcScale)
+        self.entry.bindUpdate(lambda _: self._callback("change"))
         self.scale.bind("<ButtonRelease-1>", lambda _: self._callback("release"))
 
         topFrame.pack()
