@@ -12,7 +12,6 @@ if TYPE_CHECKING:
     from FBWidgetTabs import FBWidgetTabs
 
 
-
 class FBWidgetCanvas(DNDCanvas):
     def __init__(self, master: "FBWidgetTabs", name: str, **kw):
         super().__init__(master, kw)
@@ -36,16 +35,24 @@ class FBWidgetCanvas(DNDCanvas):
         self.cmdList: List[List[str]] = []
 
         self._pressed = [False] * 26
+        self._spacePressed = False
 
     def _keyPress(self, event):
-        if "a" <= event.char <= "z":
+        if event.char == " ":
+            if not self._spacePressed:
+                self._spacePressed = True
+                self._callback("<space>", "press")
+        elif "a" <= event.char <= "z":
             cur = ord(event.char) - ord("a")
             if not self._pressed[cur]:
                 self._pressed[cur] = True
                 self._callback(f"<{event.char}>", "press")
 
     def _keyRelease(self, event):
-        if "a" <= event.char <= "z":
+        if event.char == " ":
+            self._spacePressed = False
+            self._callback("<space>", "release")
+        elif "a" <= event.char <= "z":
             self._pressed[ord(event.char) - ord("a")] = False
             self._callback(f"<{event.char}>", "release")
 
