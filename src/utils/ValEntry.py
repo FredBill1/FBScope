@@ -1,6 +1,6 @@
 import ttkbootstrap as ttk
 import tkinter as tk
-from typing import Callable, Optional
+from typing import Callable, Optional, List
 
 
 class ValEntry(ttk.Entry):
@@ -20,6 +20,7 @@ class ValEntry(ttk.Entry):
         if text is not None:
             self._preval = text
             self._var.set(text)
+        self._updateBindings: List[Callable[[str], None]] = []
         super().__init__(master, textvariable=self._var, validate="focusout", validatecommand=self._validator, **kwargs)
         self.get = self._var.get
 
@@ -33,7 +34,13 @@ class ValEntry(ttk.Entry):
     def _validator(self, *_):
         cur = self.get()
         if self._pred(cur):
-            self._preval = cur
+            if self._preval != cur:
+                self._preval = cur
+                for func in self._updateBindings:
+                    try:
+                        func(cur)
+                    except Exception as e:
+                        print(e)
         else:
             self.set(self._preval)
         return True
@@ -44,6 +51,9 @@ class ValEntry(ttk.Entry):
             return func(arg)
 
         return super().bind(event, wrapper, add)
+
+    def bindUpdate(self, func: Callable[[str], None]):
+        self._updateBindings.append(func)
 
     @staticmethod
     def type_validator(Type: callable) -> Callable[[str], bool]:
