@@ -42,7 +42,7 @@ class DNDBase:
 
     def _on_drag(self, event):
         if self._dragable and dnd.dnd_start(self, event):
-            self.x_off, self.y_off = event.x, event.y
+            self.x_off, self.y_off = event.x_root - self.frame.winfo_rootx(), event.y_root - self.frame.winfo_rooty()
             self.x_orig, self.y_orig = self.canvas.coords(self.dndid)
 
     def attach(self, canvas: tk.Canvas, x: int = 10, y: int = 10) -> None:
