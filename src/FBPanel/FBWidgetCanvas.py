@@ -83,7 +83,7 @@ class FBWidgetCanvas(DNDCanvas):
 
     @staticmethod
     def getCmd(name: str, command: str, variables: str, binding: str) -> Tuple[str, str]:
-        PERIOD_STR = ">.period("
+        PERIOD_STR = ".period("
         period = 0
         if binding.endswith(")"):
             i = binding.find(PERIOD_STR)
