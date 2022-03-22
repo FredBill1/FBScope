@@ -1,5 +1,6 @@
 from typing import List, Dict, Set, Callable, TYPE_CHECKING
 import tkinter as tk
+import ttkbootstrap as ttk
 from DND import DNDBase
 from tkinter import simpledialog, messagebox
 
@@ -43,6 +44,14 @@ class FBWidget(DNDBase):
 
     def applyConfig(self):
         ...
+
+    def construct(self, frame: ttk.Frame):
+        frame = ttk.Frame(frame, borderwidth=5, relief="groove")
+        frame.pack()
+        self.constructWithBorder(frame)
+
+    def constructWithBorder(self, frame: ttk.Frame):
+        raise NotImplementedError()
 
     def _rightClick(self, event):
         if not self._dragable:
