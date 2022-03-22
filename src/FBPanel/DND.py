@@ -7,8 +7,8 @@ import ttkbootstrap as ttk
 def _recursiveSetState(widget, disable: bool):
     for child in widget.winfo_children():
         wtype = child.winfo_class()
-        if wtype in ("Frame", "Labelframe"):
-            _recursiveSetState(child)
+        if wtype in ("Frame", "Labelframe", "TFrame", "TLabelFrame"):
+            _recursiveSetState(child, disable)
         else:
             try:
                 child.configure(state="disable" if disable else "!disable")
