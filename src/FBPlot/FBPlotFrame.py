@@ -6,6 +6,7 @@ import matplotlib.animation as animation
 import numpy as np
 from typing import List
 import threading
+from collections import deque
 
 import os.path, sys
 
@@ -72,8 +73,8 @@ class FBPlotFrame(ttk.Frame):
 
     def _initPlot(self):
         self._x = np.arange(self.samplecnt)
-        self._y = np.zeros((self.samplecnt, self.datacnt), dtype=np.float32)
-        self._lines: List[plt.Line2D] = self._ax.plot(self._x, self._y)
+        self._y = [deque([0.0] * self.samplecnt, self.samplecnt) for _ in range(self.datacnt)]
+        self._lines: List[plt.Line2D] = [l for i in range(self.datacnt) for l in self._ax.plot(self._x, self._y[i])]
         self._visible = [False] * self.datacnt
         for line in self._lines:
             line.remove()
@@ -94,8 +95,8 @@ class FBPlotFrame(ttk.Frame):
         if self._pauseButton.instate(["selected"]):
             return
         with self._dataLock:
-            self._y = np.roll(self._y, -1, 0)
-            self._y[-1, :] = data
+            for y, v in zip(self._y, data):
+                y.append(v)
             self._updateFlag = True
 
     def _toggleAutoscaleCB(self, *_):
@@ -117,6 +118,9 @@ class FBPlotFrame(ttk.Frame):
     def _autoscale(self, *_):
         self._ylowEntry.state(["disabled"])
         self._yhighEntry.state(["disabled"])
+        self._doAutoScale()
+
+    def _doAutoScale(self):
         self._ax.set_autoscaley_on(True)
         self._ax.relim(visible_only=True)
         self._ax.autoscale_view(scalex=False, scaley=True)
@@ -128,10 +132,11 @@ class FBPlotFrame(ttk.Frame):
             if not self._updateFlag:
                 return []
             self._updateFlag = False
-            for i, line in enumerate(self._lines):
-                line.set_ydata(self._y[:, i])
+            for i, (vis, line) in enumerate(zip(self._visible, self._lines)):
+                if vis:
+                    line.set_ydata(np.array(self._y[i], copy=True))
             if self._autoscaleCheckButton.instate(["selected"]):
-                self._autoscale()
+                self._doAutoScale()
             return (line for vis, line in zip(self._visible, self._lines) if vis)
 
 
