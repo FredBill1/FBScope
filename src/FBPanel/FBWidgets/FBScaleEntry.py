@@ -26,6 +26,9 @@ class FBScaleEntry(FBWidget):
         self.entry.bindUpdate(lambda _: self._callback("change"))
         self.scale.bind("<ButtonRelease-1>", lambda _: self._callback("release"))
 
+        rangeFrame.bind("<MouseWheel>", self._onMouseWheel)
+        self.scale.bind("<MouseWheel>", self._onMouseWheel)
+
         topFrame.pack()
         self.label.pack(side="left")
         self.entry.pack(side="left")
@@ -35,6 +38,18 @@ class FBScaleEntry(FBWidget):
         rangeFrame.pack(fill="x", expand=True)
         self.lowLabel.pack(side="left")
         self.highLabel.pack(side="right")
+
+    def _onMouseWheel(self, event):
+        if self.editing():
+            return
+        if event.num == 5 or event.delta == -120:
+            delta = -1
+        elif event.num == 4 or event.delta == 120:
+            delta = 1
+        else:
+            return
+        self.scale.set(max(0, min(100, self.scale.get() + delta)))
+        self._onScaleChange(self.scale.get())
 
     def _calcScale(self, *_):
         value = float(self.entry.get())
