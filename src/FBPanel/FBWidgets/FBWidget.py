@@ -35,7 +35,7 @@ class FBWidget(DNDBase):
         "检查是否应该继续执行指令的周期性调用"
         raise NotImplementedError()
 
-    def rename(self):
+    def _renameQuery(self):
         name = simpledialog.askstring("输入名称", "输入名称", initialvalue=self.name, parent=self.frame)
         if name:
             if name == self.name:
@@ -46,6 +46,10 @@ class FBWidget(DNDBase):
             self.canvas.widgets[name] = self
             del self.canvas.widgets[self.name]
             self.name = name
+            self.rename(self.name)
+
+    def rename(self, newName: str) -> None:
+        raise NotImplementedError()
 
     def afterConstruct(self):
         self.configureAll(lambda w: w.bind("<Button-3>", self._rightClick))
@@ -72,7 +76,7 @@ class FBWidget(DNDBase):
                 configMenu.add_command(label=f"{key}: {value}", command=lambda key=key: self.configure(key))
             menu.add_cascade(label="配置", menu=configMenu)
             menu.add_separator()
-        menu.add_command(label="重命名", command=self.rename)
+        menu.add_command(label="重命名", command=self._renameQuery)
         menu.add_command(label="删除", command=self.detach)
         try:
             menu.tk_popup(event.x_root, event.y_root)

@@ -25,9 +25,8 @@ class FBToggle(FBWidget):
         self.frame["width"] = int(self.config.setdefault("宽度", "100"))
         self.frame["height"] = int(self.config.setdefault("高度", "30"))
 
-    def rename(self):
-        super().rename()
-        self.button["text"] = self.name
+    def rename(self, newName: str) -> None:
+        self.button["text"] = newName
 
 
 __all__ = ["FBToggle"]

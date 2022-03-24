@@ -71,9 +71,8 @@ class FBScaleEntry(FBWidget):
         self.highLabel["text"] = self.config["最大值"]
         self._calcScale()
 
-    def rename(self):
-        super().rename()
-        self.label["text"] = self.name
+    def rename(self, newName: str) -> None:
+        self.label["text"] = newName
 
 
 __all__ = ["FBScaleEntry"]

@@ -15,9 +15,8 @@ class FBEntry(FBWidget):
     def applyConfig(self):
         self.entry["width"] = int(self.config.setdefault("宽度", "20"))
 
-    def rename(self):
-        super().rename()
-        self.label["text"] = self.name
+    def rename(self, newName: str) -> None:
+        self.label["text"] = newName
 
 
 __all__ = ["FBEntry"]
