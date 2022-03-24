@@ -23,8 +23,11 @@ class FBWidget(DNDBase):
     def unregisterCanvas(self, canvas: "FBWidgetCanvas") -> None:
         canvas.widgets.pop(self.name, None)
 
+    def editing(self) -> bool:
+        return self._dragable
+
     def _callback(self, event: str) -> None:
-        if self._dragable:
+        if self.editing():
             return
         self.canvas._callback(self.name, event)
 
@@ -60,7 +63,7 @@ class FBWidget(DNDBase):
         raise NotImplementedError()
 
     def _rightClick(self, event):
-        if not self._dragable:
+        if not self.editing():
             return
         menu = tk.Menu(self.frame, tearoff=0)
         if self.config:
