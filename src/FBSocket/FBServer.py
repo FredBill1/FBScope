@@ -101,7 +101,7 @@ __all__ = ["FBServer"]
 
 if __name__ == "__main__":
     server = FBServer()
-    server.registerRecvCallback(lambda data: print("接收:", data))
+    server.registerRecvCallback(lambda data: print("接收:", data.hex(" ", 1)))
     server.start()
 
     while True:
