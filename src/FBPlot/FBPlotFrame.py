@@ -1,6 +1,6 @@
 import tkinter as tk
 import ttkbootstrap as ttk
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
@@ -29,6 +29,7 @@ class FBPlotFrame(ttk.Frame):
         self.columnconfigure(0, weight=1)
 
         self._ax = self._fig.add_subplot(1, 1, 1)
+        self._ax.drag_pan = self._drag_pan
 
         self._dataLock = threading.Lock()
         self._updateFlag = False
@@ -45,36 +46,51 @@ class FBPlotFrame(ttk.Frame):
         self._autoscaleCheckButton.state(["selected"])
         self._autoscaleCheckButton.pack(side="left", padx=5, pady=5)
 
-        self._ylowEntry = ValEntry(ValEntry.type_validator(float), self._opFrame, text="-1.0", width=7)
-        self._yhighEntry = ValEntry(ValEntry.type_validator(float), self._opFrame, text="1.0", width=7)
-        self._applyYButton = ttk.Button(self._opFrame, text="应用", command=self._fixedscale)
-
-        for entry in (self._ylowEntry, self._yhighEntry):
-            entry.bind("<Return>", self._fixedscale)
-
-        ttk.Label(self._opFrame, text="y轴范围: 下限").pack(side="left", padx=5, pady=5)
-        self._ylowEntry.pack(side="left", padx=5, pady=5)
-        ttk.Label(self._opFrame, text="上限").pack(side="left", padx=5, pady=5)
-        self._yhighEntry.pack(side="left", padx=5, pady=5)
-        self._applyYButton.pack(side="left", padx=5, pady=5)
+        self._resetXlimButton = ttk.Button(self._opFrame, text="重置X轴", command=self._resetXlim)
+        self._resetXlimButton.pack(side="left", padx=5, pady=5)
 
         self._pauseButton = ttk.Checkbutton(self._opFrame, text="暂停", bootstyle=("success", "outline", "toolbutton"))
         self._pauseButton.pack(side="left", padx=5, pady=5)
 
+        self._toolbar = NavigationToolbar2Tk(self._canvas, self._opFrame, pack_toolbar=False)
+        self._toolbar.update()
+        self._toolbar.pan()
+
         # self.applyDataConfig()
 
         self._animation = animation.FuncAnimation(self._fig, self._updatePlot, interval=100, blit=True)
+
+    def _drag_pan(self, button, key, x, y):
+        points = self._ax._get_pan_points(button, key, x, y)
+        if points is not None:
+            self._autoscaleCheckButton.state(["!selected"])
+            xlim = points[:, 0]
+            if button == 1:
+                if xlim[0] < 0:
+                    xlim[1] -= xlim[0]
+                    xlim[0] = 0
+                elif xlim[1] > self.samplecnt:
+                    xlim[0] -= xlim[1] - self.samplecnt
+                    xlim[1] = self.samplecnt
+            else:
+                xlim = [max(0, xlim[0]), min(self.samplecnt, xlim[1])]
+            self._ax.set_xlim(xlim)
+            self._ax.set_ylim(points[:, 1])
+
+    def _resetXlim(self):
+        self._ax.set_xlim(0, self.samplecnt)
 
     def applyDataConfig(self):
         with self._dataLock:
             self._ax.cla()
             self._initPlot()
             self._ax.grid(True)
-            self._ax.set_xlim(0, self.samplecnt)
+            self._resetXlim()
         self._toggleAutoscaleCB()
 
     def _initPlot(self):
         self._x = np.arange(self.samplecnt)
+        self._x[-1] = self.samplecnt
         self._y = [deque([0.0] * self.samplecnt, self.samplecnt) for _ in range(self.datacnt)]
         self._lines: List[plt.Line2D] = [l for i in range(self.datacnt) for l in self._ax.plot(self._x, self._y[i])]
         self._visible = [False] * self.datacnt
@@ -103,31 +119,12 @@ class FBPlotFrame(ttk.Frame):
 
     def _toggleAutoscaleCB(self, *_):
         if self._autoscaleCheckButton.instate(["selected"]):
-            self._ylowEntry.state(["disabled"])
-            self._yhighEntry.state(["disabled"])
-            self._applyYButton.state(["disabled"])
             self._autoscale()
-        else:
-            self._ylowEntry.state(["!disabled"])
-            self._yhighEntry.state(["!disabled"])
-            self._applyYButton.state(["!disabled"])
-            self._fixedscale()
 
-    def _fixedscale(self, *_):
-        low, high = float(self._ylowEntry.get()), float(self._yhighEntry.get())
-        self._ax.set_ylim((min(low, high), max(low, high)))
-
-    def _autoscale(self, *_):
-        self._ylowEntry.state(["disabled"])
-        self._yhighEntry.state(["disabled"])
-        self._doAutoScale()
-
-    def _doAutoScale(self):
+    def _autoscale(self):
         self._ax.set_autoscaley_on(True)
         self._ax.relim(visible_only=True)
         self._ax.autoscale_view(scalex=False, scaley=True)
-        self._ylowEntry.set("{:.2f}".format(self._ax.get_ylim()[0]))
-        self._yhighEntry.set("{:.2f}".format(self._ax.get_ylim()[1]))
 
     def _updatePlot(self, *_):
         with self._dataLock:
@@ -138,7 +135,7 @@ class FBPlotFrame(ttk.Frame):
                 if vis:
                     line.set_ydata(np.array(self._y[i], copy=True))
             if self._autoscaleCheckButton.instate(["selected"]):
-                self._doAutoScale()
+                self._autoscale()
             self.root.setVar([self._y[i][-1] for i in range(self.datacnt)])
             return (line for vis, line in zip(self._visible, self._lines) if vis)
 
