@@ -5,7 +5,9 @@ def as_bytes(x: int) -> bytes:
     if isinstance(x, bytes):
         return x
     if isinstance(x, str):
-        return bytes.fromhex(x[2:] if x.startswith("0x") else x)
+        if x.startswith("0x"):
+            return bytes.fromhex(x[2:])
+        return as_bytes(int(x))
     if isinstance(x, int):
         x = hex(x)[2:]
         return bytes.fromhex("0" + x if len(x) & 1 else x)
