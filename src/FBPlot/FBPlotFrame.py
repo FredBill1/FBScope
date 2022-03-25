@@ -16,8 +16,9 @@ from utils import ValEntry
 
 
 class FBPlotFrame(ttk.Frame):
-    def __init__(self, master=None, **kw):
-        super().__init__(master, **kw)
+    def __init__(self, root=None, **kw):
+        super().__init__(root._root if root is not None else None, **kw)
+        self.root = root
 
         self._fig = plt.Figure()
 
@@ -137,6 +138,7 @@ class FBPlotFrame(ttk.Frame):
                     line.set_ydata(np.array(self._y[i], copy=True))
             if self._autoscaleCheckButton.instate(["selected"]):
                 self._doAutoScale()
+            self.root.setVar([self._y[i][-1] for i in range(self.datacnt)])
             return (line for vis, line in zip(self._visible, self._lines) if vis)
 
 

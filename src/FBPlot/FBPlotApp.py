@@ -2,6 +2,7 @@ import tkinter as tk
 import ttkbootstrap as ttk
 import matplotlib.colors as mcolors
 import itertools
+from typing import List
 
 import os.path, sys
 
@@ -43,7 +44,7 @@ class FBPlotApp:
         self._recvGUI = _RecvGUI(recvlf)
         self._recvGUI.pack(padx=5, pady=5)
 
-        self._plotFrame = FBPlotFrame(self._root)
+        self._plotFrame = FBPlotFrame(self)
         self._plotFrame.grid(row=0, column=1, sticky="nswe")
 
         self._client = FBServer() if isServer else FBClient()
@@ -52,6 +53,7 @@ class FBPlotApp:
         self._recvGUI.registerClickCallback(self._setDataCnt)
 
         self._visibleFrame: ttk.Frame = None
+        self._dataVar: List[tk.StringVar] = None
 
         self._root.protocol("WM_DELETE_WINDOW", self.shutdown)
 
@@ -67,20 +69,30 @@ class FBPlotApp:
         self._visibleFrame = ttk.LabelFrame(self._panel, text="可视化")
         self._visibleFrame.grid(row=1, column=0, sticky="nswe")
         self._visibleFrame.grid_propagate(False)
+        cnt = self._recvGUI.getCnt()
+        self._dataVar = [tk.StringVar(self._visibleFrame, value="0.0") for _ in range(cnt)]
         self._visibleToggle = [
             ttk.Checkbutton(
                 self._visibleFrame,
-                text="{:>2d}".format(i + 1),
+                textvariable=self._dataVar[i],
                 bootstyle=("success", "round", "toggle"),
                 command=lambda i=i: self._plotFrame.setVisible(i, self._visibleToggle[i].instate(["selected"])),
             )
-            for i in range(self._recvGUI.getCnt())
+            for i in range(cnt)
         ]
         for i, (toggle, color) in enumerate(zip(self._visibleToggle, itertools.cycle(mcolors.TABLEAU_COLORS.values()))):
             c = tk.Canvas(self._visibleFrame, width=10, height=10)
             c.config(bg=color)
             c.grid(row=i, column=0, sticky="w")
             toggle.grid(row=i, column=1, sticky="w")
+
+    def setVar(self, data: List[float]) -> None:
+        for var, d in zip(self._dataVar, data):
+            s = str(d)
+            LIM = 8
+            if len(s) > LIM:
+                s = s[:LIM]
+            var.set(s)
 
     def mainloop(self):
         self._client.start()
