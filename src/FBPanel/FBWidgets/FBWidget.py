@@ -15,6 +15,11 @@ class FBWidget(DNDBase):
         self.data: Dict[str, tk.Variable] = {}
         self.config: Dict[str, str] = {}
 
+    @property
+    def CanRightClickWithoutEditing(self):
+        "Override this to `False` if you want to disable right click while not `Editing`"
+        return True
+
     def registerCanvas(self, canvas: "FBWidgetCanvas") -> None:
         if self.name in canvas.widgets:
             raise ValueError("Widget name already exists")
@@ -67,7 +72,7 @@ class FBWidget(DNDBase):
         raise NotImplementedError()
 
     def _rightClick(self, event):
-        if not self.editing():
+        if not self.CanRightClickWithoutEditing and not self.editing():
             return
         menu = tk.Menu(self.frame, tearoff=0)
         if self.config:
