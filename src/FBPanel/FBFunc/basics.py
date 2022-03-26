@@ -29,4 +29,24 @@ def as_float(x, bits: int = 4, check: bool = True) -> bytes:
     return res + bytes([sum(res) & 255]) if check else res
 
 
-__all__ = ["as_bytes", "as_str", "as_float"]
+def to_bitset(*args) -> bytes:
+    AVAILABLE = [1, 2, 4, 8]
+    need = (len(args) + 7) >> 3
+    for v in AVAILABLE:
+        if v >= need:
+            need = v
+            break
+    else:
+        raise ValueError(f"转换成二进制串的参数必须少于64个, 而不是{len(args)}")
+    res = 0
+    for v in reversed(args):
+        if isinstance(v, str):
+            v = int(bool(eval(v)))
+        else:
+            v = int(v)
+        res = res << 1 | v
+
+    return res.to_bytes(need, "big")
+
+
+__all__ = ["as_bytes", "as_str", "as_float", "to_bitset"]
