@@ -143,8 +143,8 @@ class FBWidgetCanvas(DNDCanvas):
     def _rightClick(self, event):
         self._click_pos = (event.x_root - self.winfo_rootx(), event.y_root - self.winfo_rooty())
         menu = tk.Menu(self, tearoff=0)
+        menu.add_cascade(label="新建组件", menu=self.create_menu)
         if self.editing:
-            menu.add_cascade(label="新建组件", menu=self.create_menu)
             menu.add_command(label="结束编辑", command=lambda: self.setEditing(False))
         else:
             menu.add_command(label="编辑", command=lambda: self.setEditing(True))
