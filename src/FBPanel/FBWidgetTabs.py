@@ -1,6 +1,7 @@
 import tkinter as tk
 import ttkbootstrap as ttk
 from tkinter import simpledialog
+from tkinter import messagebox
 from FBWidgetCanvas import *
 from FBWidgets import *
 from typing import List
@@ -44,17 +45,41 @@ class FBWidgetTabs(ttk.Notebook):
             self.select(self.tabs()[idx])
 
     def _rightClick(self, idx: int, event):
-        print(self.toDict())
         menu = tk.Menu(self, tearoff=0)
-        menu.add_command(label="删除", command=lambda idx=idx: self.delete(idx))
+        menu.add_command(label="重命名", command=lambda: self._askRename(idx))
+        menu.add_command(label="复制", command=lambda idx=idx: self.dup(idx))
+        menu.add_separator()
+        menu.add_command(label="删除", command=lambda idx=idx: self._askDelete(idx))
         try:
             menu.tk_popup(event.x_root, event.y_root)
         finally:
             menu.grab_release()
 
+    def dup(self, idx: int):
+        cur_config = self.canvases[idx].toDict()
+        cur_config["name"] += f"-{len(self.canvases)+1}"
+        cur = FBWidgetCanvas.fromDict(self, cur_config)
+        self.canvases.insert(idx + 1, cur)
+        self.insert(idx + 1, cur, text=cur_config["name"])
+        self.select(self.tabs()[idx + 1])
+
     def delete(self, idx: int):
         self.forget(idx)
         self.canvases.pop(idx)
+        self.select(self.tabs()[max(0, idx - 1)])
+
+    def rename(self, idx: int, newName: str):
+        self.tab(idx, text=newName)
+        self.canvases[idx].name = newName
+
+    def _askDelete(self, idx: int):
+        if messagebox.askokcancel("删除", f"你确定要删除{self.canvases[idx].name}吗? (不可逆)"):
+            self.delete(idx)
+
+    def _askRename(self, idx: int):
+        name = simpledialog.askstring("输入名称", "输入名称", parent=self)
+        if name:
+            self.rename(idx, name)
 
     def toDict(self):
         return {"canvases": self.toList()}
