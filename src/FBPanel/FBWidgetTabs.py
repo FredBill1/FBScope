@@ -13,6 +13,7 @@ class FBWidgetTabs(ttk.Notebook):
         super().__init__(master, **kw)
         self._createDummy()
         self.bind("<ButtonRelease>", self._on_click)
+        self.bind("<B1-Motion>", self._reorderCB)
         self._isTopmost = False
         self.uartClient = uartClient
 
@@ -71,6 +72,17 @@ class FBWidgetTabs(ttk.Notebook):
     def rename(self, idx: int, newName: str):
         self.tab(idx, text=newName)
         self.canvases[idx].name = newName
+
+    def _reorderCB(self, event):
+        try:
+            new_idx = self.index(f"@{event.x},{event.y}")
+            if new_idx < len(self.canvases):
+                idx = next(i for i, s in enumerate(self.canvases) if str(s) == self.select())
+                if idx != new_idx:
+                    self.canvases[idx], self.canvases[new_idx] = self.canvases[new_idx], self.canvases[idx]
+                    self.insert(new_idx, child=self.select())
+        except tk.TclError:
+            pass
 
     def _askDelete(self, idx: int):
         if messagebox.askokcancel("删除", f"你确定要删除{self.canvases[idx].name}吗? (不可逆)"):
