@@ -61,7 +61,7 @@ class FBServer(FBSocketBase):
 
         self._server = ThreadedTCPServer(addr, self._HandlerFactory(self))
         self._serverThread = threading.Thread(target=self._server.serve_forever)
-        self._serverThread.daemon = True
+        # self._serverThread.daemon = True
         self._serverThread.start()
 
         self._startRecvThread()
