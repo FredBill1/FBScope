@@ -53,6 +53,15 @@ class FBWidget(DNDBase):
             self.name = name
             self.rename(self.name)
 
+    def dup(self):
+        cfg = self.toDict()
+        cfg["name"] += f"-{len(self.canvas.widgets)+1}"
+        cfg["pos"][0] += 10
+        cfg["pos"][1] += 10
+        new = self.fromDict(self.canvas, cfg)
+        new.dragable = self.canvas.editing
+        self.canvas.widgets[new.name] = new
+
     def rename(self, newName: str) -> None:
         raise NotImplementedError()
 
@@ -81,6 +90,7 @@ class FBWidget(DNDBase):
                 configMenu.add_command(label=f"{key}: {value}", command=lambda key=key: self.configure(key))
             menu.add_cascade(label="配置", menu=configMenu)
             menu.add_separator()
+        menu.add_command(label="复制", command=self.dup)
         menu.add_command(label="重命名", command=self._renameQuery)
         menu.add_command(label="删除", command=self.detach)
         try:
