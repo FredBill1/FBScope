@@ -87,8 +87,12 @@ class FBServer(FBSocketBase):
 
     def send(self, data) -> None:
         self._clientsLock.acquire()
-        for client in self._clients.values():
-            self._ignoreConnectionError(client.sendall)(data)
+        tasks = [(lambda c=client: self._ignoreConnectionError(c.sendall)(data)) for client in self._clients.values()]
+        threads = [threading.Thread(target=task) for task in tasks]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
         self._clientsLock.release()
 
     def recv(self) -> bytes:
