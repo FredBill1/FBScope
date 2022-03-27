@@ -11,7 +11,7 @@ class FBSerialApp:
         self._root = style.master
         self._root.title("FBSerial")
         self._root.resizable(False, False)
-        self._root.attributes("-topmost", True)
+        # self._root.attributes("-topmost", True)
         self._root.protocol("WM_DELETE_WINDOW", self.shutdown)
 
         frame = ttk.LabelFrame(self._root, text="串口选择")
