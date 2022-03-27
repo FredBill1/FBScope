@@ -20,7 +20,7 @@ class _RecvGUI(FBFloatRecvGUI):
         res = ttk.Frame(master)
         res.columnconfigure(1, weight=1)
         ttk.Label(res, text="采样").grid(row=0, column=0, sticky="w")
-        self._sampleCntEntry = ValEntry(lambda s: s.isdigit() and int(s) > 0, res, width=5, text="1000")
+        self._sampleCntEntry = ValEntry(lambda s: s.isdigit() and int(s) > 0, res, width=5, text="5000")
         self._sampleCntEntry.grid(row=0, column=1, sticky="we")
         return res
 

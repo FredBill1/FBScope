@@ -21,7 +21,7 @@ class FBPlotFrame(ttk.Frame):
         self.root = root
 
         self._fig = plt.Figure()
-        self._fig.subplots_adjust(top=0.98, bottom=0.05, left=0.07, right=0.98, wspace=0, hspace=0)
+        self._fig.subplots_adjust(top=0.95, bottom=0.05, left=0.072, right=0.97, wspace=0, hspace=0)
 
         self._canvas = FigureCanvasTkAgg(self._fig, master=self)
         self._canvas.get_tk_widget().grid(row=0, column=0, sticky="wesn")
