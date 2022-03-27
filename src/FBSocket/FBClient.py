@@ -27,12 +27,15 @@ class FBClient(FBSocketBase):
                     self._log("尝试连接到", "%s:%d" % self.addr)
                 try:
                     self._sock.connect(self.addr)
-                    self._sock.sendall(b"")
                     break
                 except ConnectionError:
+                    if not self._running:
+                        break
                     time.sleep(0.5)
                 except OSError:
-                    break
+                    if not self._running:
+                        break
+                    time.sleep(0.5)
             if self._running:
                 self._log("连接成功")
 
