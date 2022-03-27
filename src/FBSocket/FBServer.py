@@ -91,8 +91,8 @@ class FBServer(FBSocketBase):
         threads = [threading.Thread(target=task) for task in tasks]
         for thread in threads:
             thread.start()
-        for thread in threads:
-            thread.join()
+        # for thread in threads:
+        #     thread.join()
         self._clientsLock.release()
 
     def recv(self) -> bytes:
