@@ -5,13 +5,21 @@ import tkinter as tk
 
 class FBToggle(FBWidget):
     def construct(self, frame: ttk.Frame) -> None:
+        self.data.setdefault("state", tk.IntVar(value=0))
         self.button = ttk.Checkbutton(
-            frame, text=self.name, bootstyle=("success", "outline", "toolbutton"), command=self._toggle
+            frame,
+            text=self.name,
+            bootstyle=("success", "outline", "toolbutton"),
+            state="selected" if self.data["state"].get() else "!selected",
+            variable=self.data["state"],
+            command=self._toggle,
         )
         self.button.pack(fill="both", expand=True)
 
     def _toggle(self, *_):
-        if self.button.instate(["selected"]):
+        on = self.button.instate(["selected"])
+        self._callback("toggle")
+        if on:
             self._callback("on")
             self._callback("period")
         else:
