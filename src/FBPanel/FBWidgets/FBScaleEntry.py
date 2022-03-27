@@ -7,6 +7,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
 from utils import ValEntry
 
 
+MAXVAL = 1e6
+
+
 class FBScaleEntry(FBWidget):
     def constructWithBorder(self, frame: ttk.Frame) -> None:
         self.data.setdefault("text", tk.StringVar(value="0.0"))
@@ -15,7 +18,7 @@ class FBScaleEntry(FBWidget):
         self.label = ttk.Label(topFrame, text=self.name)
         self.entry = ValEntry(ValEntry.type_validator(float), topFrame, textvariable=self.data["text"])
 
-        self.scale = ttk.Scale(frame, orient="horizontal", from_=0, to=100, command=self._onScaleChange)
+        self.scale = ttk.Scale(frame, orient="horizontal", from_=0.0, to=MAXVAL, command=self._onScaleChange)
 
         rangeFrame = ttk.Frame(frame)
         self.lowLabel = ttk.Label(rangeFrame)
@@ -48,16 +51,16 @@ class FBScaleEntry(FBWidget):
             delta = 1
         else:
             return
-        self.scale.set(max(0, min(100, self.scale.get() + delta)))
+        self.scale.set(max(0, min(MAXVAL, self.scale.get() + delta)))
         self._onScaleChange(self.scale.get())
 
     def _calcScale(self, *_):
         value = float(self.entry.get())
-        self.scale.configure(value=max(0, min(100, (value - self.low) / (self.high - self.low) * 100)))
+        self.scale.configure(value=max(0.0, min(MAXVAL, (value - self.low) / (self.high - self.low) * MAXVAL)))
 
     def _onScaleChange(self, scale):
         scale = round(float(scale))
-        value = f"%.{self.displayPrecision}f" % (self.low + (self.high - self.low) * scale / 100)
+        value = f"%.{self.displayPrecision}f" % (self.low + (self.high - self.low) * scale / MAXVAL)
         if value != self.entry.get():
             self.entry.set(value)
             self._callback("change")
