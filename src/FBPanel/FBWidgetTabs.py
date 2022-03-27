@@ -89,7 +89,7 @@ class FBWidgetTabs(ttk.Notebook):
             self.delete(idx)
 
     def _askRename(self, idx: int):
-        name = simpledialog.askstring("输入名称", "输入名称", parent=self)
+        name = simpledialog.askstring("输入名称", "输入名称", initialvalue=self.canvases[idx].name, parent=self)
         if name:
             self.rename(idx, name)
 
