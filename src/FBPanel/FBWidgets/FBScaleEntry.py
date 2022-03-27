@@ -46,9 +46,9 @@ class FBScaleEntry(FBWidget):
         if self.editing():
             return
         if event.num == 5 or event.delta == -120:
-            delta = -1
+            delta = -self.delta
         elif event.num == 4 or event.delta == 120:
-            delta = 1
+            delta = self.delta
         else:
             return
         self.scale.set(max(0, min(MAXVAL, self.scale.get() + delta)))
@@ -73,6 +73,8 @@ class FBScaleEntry(FBWidget):
         self.lowLabel["text"] = self.config["最小值"]
         self.highLabel["text"] = self.config["最大值"]
         self._calcScale()
+        delta = float(self.config.setdefault("滚轮增量", "1.0"))
+        self.delta = MAXVAL / (self.high - self.low) * delta
 
     def rename(self, newName: str) -> None:
         self.label["text"] = newName
