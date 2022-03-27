@@ -13,7 +13,7 @@ from FBSocketBase import FBSocketBase
 class FBServer(FBSocketBase):
     def __init__(self):
         super().__init__()
-        self._clients: Dict[Tuple[str, int], socket.socket] = {}
+        self._clients: Dict[Tuple[str, int], Tuple[socket.socket, threading.Lock]] = {}
         self._clientsLock = threading.Lock()
 
         self._recvBuf = queue.Queue(10)
@@ -25,6 +25,8 @@ class FBServer(FBSocketBase):
                 return func(*args, **kwargs)
             except ConnectionError:
                 pass
+            except OSError:
+                pass
 
         return wrapper
 
@@ -33,7 +35,7 @@ class FBServer(FBSocketBase):
         class Handler(socketserver.BaseRequestHandler):
             def setup(self):
                 master._clientsLock.acquire()
-                master._clients[self.client_address] = self.request
+                master._clients[self.client_address] = [self.request, threading.Lock()]
                 master._clientsLock.release()
                 master._log("连接建立:", "%s:%d" % self.client_address)
 
@@ -46,9 +48,11 @@ class FBServer(FBSocketBase):
                     master._instantPut(master._recvBuf, data)
 
             def finish(self):
-                master._clientsLock.acquire()
-                master._clients.pop(self.client_address, None)
-                master._clientsLock.release()
+                with master._clientsLock:
+                    if self.client_address in master._clients:
+                        client, lock = master._clients[self.client_address]
+                        master._tryClose(client)
+                        del master._clients[self.client_address]
                 master._log("连接断开: %s:%d" % self.client_address)
 
         return Handler
@@ -74,10 +78,9 @@ class FBServer(FBSocketBase):
         except queue.Full:
             pass
 
-        self._clientsLock.acquire()
-        for client in self._clients.values():
-            client.close()
-        self._clientsLock.release()
+        with self._clientsLock:
+            for client, lock in self._clients.values():
+                self._tryClose(client)
 
         self._server.shutdown()
         # self._serverThread.join()
@@ -85,15 +88,24 @@ class FBServer(FBSocketBase):
         # self._joinRecvThread()
         self._log("服务端终止")
 
+    def _doSendAll(self, data: bytes, client: socket.socket, lock: threading.Lock):
+        with lock:
+            self._ignoreConnectionError(client.sendall)(data)
+
     def send(self, data) -> None:
-        self._clientsLock.acquire()
-        tasks = [(lambda c=client: self._ignoreConnectionError(c.sendall)(data)) for client in self._clients.values()]
+        with self._clientsLock:
+            clients = list(self._clients.values())
+        tasks = [
+            (lambda c=client, l=lock: self._doSendAll(data, c, l)) for client, lock in clients if not lock.locked()
+        ]
         threads = [threading.Thread(target=task) for task in tasks]
         for thread in threads:
+            # thread.setDaemon(True)
             thread.start()
-        # for thread in threads:
-        #     thread.join()
-        self._clientsLock.release()
+        for (client, lock), thread in zip(clients, threads):
+            thread.join(0.5)
+            if thread.is_alive():
+                self._tryClose(client)
 
     def recv(self) -> bytes:
         if not self._running:

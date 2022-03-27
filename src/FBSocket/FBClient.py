@@ -85,7 +85,7 @@ class FBClient(FBSocketBase):
         # self._sendThread.join()
 
         if self._sock is not None:
-            self._sock.close()
+            self._tryClose(self._sock)
 
         # self._joinRecvThread()
         self._log("客户端终止")

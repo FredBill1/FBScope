@@ -1,6 +1,7 @@
 from typing import List, Callable, Tuple
 import threading
 import queue
+import socket
 
 
 class FBSocketBase:
@@ -55,6 +56,14 @@ class FBSocketBase:
         if self._running:
             raise RuntimeError("开始运行后不能注册新的回调函数")
         self._recvCBs.append(worker)
+
+    @staticmethod
+    def _tryClose(client: socket.socket):
+        try:
+            # client.shutdown(socket.SHUT_RDWR)
+            client.close()
+        except:
+            pass
 
     @classmethod
     def _log(cls, *args, **kwargs):
