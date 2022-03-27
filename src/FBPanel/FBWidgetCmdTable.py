@@ -12,6 +12,7 @@ class _FBWidgetCmdDialog(simpledialog.Dialog):
         self.default = default
         self.focus = focus
         super().__init__(master, title="编辑指令")
+        self.unbind_all("<Escape>")
 
     def body(self, master):
         master.pack_configure(fill="x", expand=True)
@@ -44,6 +45,24 @@ class _FBWidgetCmdDialog(simpledialog.Dialog):
     def validate(self):
         self.result = [str(entry.get()) for entry in (self.nameEntry, self.cmdEntry, self.varEntry, self.bindEntry)]
         return True
+
+    def buttonbox(self):
+        """add standard button box.
+
+        override if you do not want the standard buttons
+        """
+
+        box = tk.Frame(self)
+
+        w = tk.Button(box, text="OK", width=10, command=self.ok, default=tk.ACTIVE)
+        w.pack(side=tk.LEFT, padx=5, pady=5)
+        w = tk.Button(box, text="Cancel", width=10, command=self.cancel)
+        w.pack(side=tk.LEFT, padx=5, pady=5)
+
+        self.bind("<Return>", self.ok)
+        # self.bind("<Escape>", self.cancel)
+
+        box.pack()
 
 
 class FBWidgetCmdTable(tk.Toplevel):
