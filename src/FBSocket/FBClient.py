@@ -79,12 +79,12 @@ class FBClient(FBSocketBase):
             self._sendBuf.put(None, timeout=0.5)  # 发送空数据，结束线程
         except queue.Full:
             pass
-        self._sendThread.join()
+        # self._sendThread.join()
 
         if self._sock is not None:
             self._sock.close()
 
-        self._joinRecvThread()
+        # self._joinRecvThread()
         self._log("客户端终止")
 
 

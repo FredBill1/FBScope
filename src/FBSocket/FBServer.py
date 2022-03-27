@@ -80,9 +80,9 @@ class FBServer(FBSocketBase):
         self._clientsLock.release()
 
         self._server.shutdown()
-        self._serverThread.join()
+        # self._serverThread.join()
         self._server.server_close()
-        self._joinRecvThread()
+        # self._joinRecvThread()
         self._log("服务端终止")
 
     def send(self, data) -> None:
