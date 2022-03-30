@@ -43,20 +43,24 @@ class FBWidgetCanvas(DNDCanvas):
                 self._spacePressed = True
                 self._callback("<space>", "press")
                 self._callback("<space>", "period")
+                self._callback("<space>", "both")
         elif "a" <= event.char <= "z":
             cur = ord(event.char) - ord("a")
             if not self._pressed[cur]:
                 self._pressed[cur] = True
                 self._callback(f"<{event.char}>", "press")
                 self._callback(f"<{event.char}>", "period")
+                self._callback(f"<{event.char}>", "both")
 
     def _keyRelease(self, event):
         if event.char == " ":
             self._spacePressed = False
             self._callback("<space>", "release")
+            self._callback("<space>", "both")
         elif "a" <= event.char <= "z":
             self._pressed[ord(event.char) - ord("a")] = False
             self._callback(f"<{event.char}>", "release")
+            self._callback(f"<{event.char}>", "both")
 
     def _checkPeriod(self, name: str) -> bool:
         if (name.startswith("<") and name.endswith(">") and len(name) == 3) or name == "<space>":
