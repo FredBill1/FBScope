@@ -1,5 +1,10 @@
 from typing import TYPE_CHECKING, Optional, List
 from tkinter import messagebox
+
+import os, os.path, sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+
 from FBFunc import *
 
 if TYPE_CHECKING:
