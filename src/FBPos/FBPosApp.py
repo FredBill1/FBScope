@@ -20,17 +20,17 @@ from FBSocket import FBServer, FBClient
 from FBFunc import as_float
 
 HEADER = b"\x00\xff\x80\x7f"
-CONTROL_ID = b"\x1E"
+CONTROL_ID = b"\x08"
 
 
 class Robot(Polygon):
-    DEFAULT_SHAPE = np.array([[2, 0], [-1, 1], [-1, -1]], dtype=np.float32) * 0.25
+    DEFAULT_SHAPE = np.array([[0.14, 0.11], [0.16, 0], [0.14, -0.11], [-0.14, -0.11], [-0.14, 0.11]], dtype=np.float32)
 
-    def __init__(self, verts: np.ndarray = None, x=0.0, y=0.0, yaw=0.0, *args, **kwargs):
+    def __init__(self, verts: np.ndarray = None, x=0.0, y=0.0, yaw=0.0, fill=False, *args, **kwargs):
         self.lock = threading.Lock()
         self._updateFlag = False
         self.verts = verts if verts is not None else self.DEFAULT_SHAPE
-        super().__init__([[0, 0], [0, 0]], *args, **kwargs)
+        super().__init__([[0, 0], [0, 0]], *args, fill=fill, **kwargs)
         self.set_pose(x, y, yaw)
 
     def set_pose(self, x: float, y: float, yaw: float):
@@ -166,15 +166,16 @@ class FBPosApp:
         self._control_arrow.set_data(x=x, y=y, dx=dx * k, dy=dy * k)
         return [self._control_arrow]
 
-    def registerRobot(self, id: int, verts: np.ndarray = None):
-        robot = Robot(verts)
+    def registerRobot(self, id: int, *args, **kwargs):
+        robot = Robot(*args, **kwargs)
         self._recv.setConfig(id, 3, 4, True)
         self._recv.registerRecvCallback(id, lambda data: robot.set_pose(*data))
         self._robots.append(robot)
 
     def _updateRobots(self):
-        for robot in self._robots:
-            robot.update_pose()
+        if not self._pauseButton.instate(["selected"]):
+            for robot in self._robots:
+                robot.update_pose()
         return self._robots
 
     def _updatePlot(self, *_):
