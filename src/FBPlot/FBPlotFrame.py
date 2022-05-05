@@ -49,6 +49,9 @@ class FBPlotFrame(ttk.Frame):
         self._resetXlimButton = ttk.Button(self._opFrame, text="重置X轴", command=self._resetXlim)
         self._resetXlimButton.pack(side="left", padx=5, pady=5)
 
+        self._refreshButton = ttk.Button(self._opFrame, text="刷新", command=self._refresh, bootstyle="warning")
+        self._refreshButton.pack(side="left", padx=5, pady=5)
+
         self._pauseButton = ttk.Checkbutton(self._opFrame, text="暂停", bootstyle=("success", "outline", "toolbutton"))
         self._pauseButton.pack(side="left", padx=5, pady=5)
 
@@ -115,6 +118,10 @@ class FBPlotFrame(ttk.Frame):
         with self._dataLock:
             for y, v in zip(self._y, data):
                 y.append(v)
+            self._updateFlag = True
+
+    def _refresh(self, *_):
+        with self._dataLock:
             self._updateFlag = True
 
     def _toggleAutoscaleCB(self, *_):
