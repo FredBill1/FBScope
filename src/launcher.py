@@ -5,7 +5,7 @@ from subprocess import Popen, DETACHED_PROCESS
 from math import sqrt, floor, ceil
 
 DIR = dirname(__file__)
-APPs = ["FBSerial", "FBPlot", "FBPanel", "FBRot", "FBImg", "FBRecorder", "FBPos"]
+APPs = ["FBSerial", "FBPlot", "FBPanel", "FBRot", "FBImg", "FBRecorder", "FBPos", "FBMapDraw"]
 
 if __name__ == "__main__":
     style = ttk.Style("cosmo")
