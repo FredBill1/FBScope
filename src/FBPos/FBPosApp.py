@@ -21,6 +21,7 @@ from FBFunc import as_float
 
 HEADER = b"\x00\xff\x80\x7f"
 CONTROL_ID = b"\x08"
+STATE_ID = b"\x0A"
 
 
 class Robot(Polygon):
@@ -111,7 +112,14 @@ class FBPosApp:
         self._pauseButton = ttk.Checkbutton(self._opFrame, text="暂停", bootstyle=("success", "outline", "toolbutton"))
         self._pauseButton.pack(side="left", padx=5, pady=5)
 
+        self._resetPosButton = ttk.Button(self._opFrame, text="重置位置", command=self._resetPos)
+        self._resetPosButton.pack(side="left", padx=5, pady=5)
+
         self._robots: List[Robot] = []
+
+    def _resetPos(self):
+        data = HEADER + STATE_ID + b"".join(map(as_float, (0, 0, 0, 0, 0, 0)))
+        self._client.send(data)
 
     def _get_control_data(self):
         return (
@@ -147,7 +155,10 @@ class FBPosApp:
             self._control_event = None
         yaw = atan2(dy, dx)
         print("x:%.2f y:%.2f yaw:%.2f" % (x, y, yaw))
-        data = HEADER + CONTROL_ID + b"".join(map(as_float, (x, y, yaw)))
+        if event.button == 1:
+            data = HEADER + CONTROL_ID + b"".join(map(as_float, (x, y, yaw)))
+        else:
+            data = HEADER + STATE_ID + b"".join(map(as_float, (x, y, yaw, 0, 0, 0)))
         self._client.send(data)
 
     def _getLimScale(self):
