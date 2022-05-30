@@ -8,7 +8,7 @@ from types import SimpleNamespace
 from math import sqrt, atan2
 import threading
 import numpy as np
-from typing import List
+from typing import List, Optional, Tuple
 
 import os.path, sys
 
@@ -29,7 +29,7 @@ class Robot(Polygon):
 
     def __init__(self, verts: np.ndarray = None, x=0.0, y=0.0, yaw=0.0, fill=False, *args, **kwargs):
         self.lock = threading.Lock()
-        self._updateFlag = False
+        self._updateFlag = self._queryUpdateFlag = False
         self.verts = verts if verts is not None else self.DEFAULT_SHAPE
         super().__init__([[0, 0], [0, 0]], *args, fill=fill, **kwargs)
         self.set_pose(x, y, yaw)
@@ -37,21 +37,61 @@ class Robot(Polygon):
     def set_pose(self, x: float, y: float, yaw: float):
         with self.lock:
             self.x, self.y, self.yaw = x, y, yaw
-            self._updateFlag = True
+            self._queryUpdateFlag = self._updateFlag = True
 
-    def update_pose(self, scale: float = 1.0):
+    def update_pose(self):
         with self.lock:
             if not self._updateFlag:
                 return
             self._updateFlag = False
             x, y, yaw = self.x, self.y, self.yaw
         vert = self.verts.copy()
-        vert *= scale
         rot = np.array([[np.cos(yaw), np.sin(yaw)], [-np.sin(yaw), np.cos(yaw)]], dtype=np.float32)
         vert = vert @ rot
         vert[:, 0] += x
         vert[:, 1] += y
         self.set_xy(vert)
+
+    def get_pose(self) -> Tuple[float]:
+        with self.lock:
+            return (self.x, self.y, self.yaw)
+
+    def get_updated(self):
+        with self.lock:
+            res = self._queryUpdateFlag
+            self._queryUpdateFlag = False
+        return res
+
+
+class Scatter:
+    def __init__(self, ax: plt.Axes, robotRef: Optional[Robot] = None, data=[], **kwargs):
+        self.data = np.reshape(data, (-1, 2))
+        self._updateFlag = False
+        self.scatter = ax.scatter(*self.data.T, **kwargs)
+        self.robotRef = robotRef
+        self.lock = threading.Lock()
+
+    def get_artist(self):
+        return self.scatter
+
+    def set_data(self, data):
+        with self.lock:
+            self._updateFlag = True
+            self.data = data
+
+    def update_data(self):
+        with self.lock:
+            updated = self._updateFlag
+        if not updated and self.robotRef is not None and not self.robotRef.get_updated():
+            return False
+        with self.lock:
+            self._updateFlag = False
+            data = self.data
+        if self.robotRef is not None:
+            x, y, yaw = self.robotRef.get_pose()
+            rot = np.array([[np.cos(yaw), np.sin(yaw)], [-np.sin(yaw), np.cos(yaw)]], dtype=np.float32)
+            data = data @ rot + np.array([x, y], dtype=np.float32)
+        self.scatter.set_offsets(data)
 
 
 class FBPosApp:
@@ -116,6 +156,7 @@ class FBPosApp:
         self._resetPosButton.pack(side="left", padx=5, pady=5)
 
         self._robots: List[Robot] = []
+        self._scatters: List[Scatter] = []
 
     def _resetPos(self):
         data = HEADER + STATE_ID + b"".join(map(as_float, (0, 0, 0, 0, 0, 0)))
@@ -177,11 +218,26 @@ class FBPosApp:
         self._control_arrow.set_data(x=x, y=y, dx=dx * k, dy=dy * k)
         return [self._control_arrow]
 
-    def registerRobot(self, id: int, *args, **kwargs):
+    def registerScatter(self, id: int, *args, **kwargs) -> Scatter:
+        scatter = Scatter(self._ax, *args, **kwargs)
+        self._recv.setConfig(id, 0, 4, True)
+        self._recv.registerRecvCallback(id, lambda data: scatter.set_data(np.reshape(data, (-1, 2))))
+        self._scatters.append(scatter)
+        return scatter
+
+    def _updateScatters(self):
+        if not self._pauseButton.instate(["selected"]):
+            for scatter in self._scatters:
+                scatter.update_data()
+        return [scatter.get_artist() for scatter in self._scatters]
+
+    def registerRobot(self, id: Optional[int] = None, *args, **kwargs) -> Robot:
         robot = Robot(*args, **kwargs)
-        self._recv.setConfig(id, 3, 4, True)
-        self._recv.registerRecvCallback(id, lambda data: robot.set_pose(*data))
-        self._robots.append(robot)
+        if id is not None:
+            self._recv.setConfig(id, 3, 4, True)
+            self._recv.registerRecvCallback(id, lambda data: robot.set_pose(*data))
+            self._robots.append(robot)
+        return robot
 
     def _updateRobots(self):
         if not self._pauseButton.instate(["selected"]):
@@ -193,6 +249,7 @@ class FBPosApp:
         changed = []
         changed.extend(self._updateControlArrow())
         changed.extend(self._updateRobots())
+        changed.extend(self._updateScatters())
         return changed
 
     def _onPanClick(self, *_):
