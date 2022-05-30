@@ -62,8 +62,9 @@ class FBFloatMultiRecv(FBRecv):
                 if not (id in self._recvCBs or id in self._recvCfgs):
                     return None
                 cnt, bits, checksum = astuple(self._recvCfgs[id])
-            res = [None] * cnt
-            for i in range(cnt):
+            real_cnt = cnt if cnt > 0 else self.getchar(as_int=True)
+            res = [None] * real_cnt
+            for i in range(real_cnt):
                 tmp = [None] * bits
                 for j in range(bits):
                     tmp[j] = self.getchar(as_int=True)
