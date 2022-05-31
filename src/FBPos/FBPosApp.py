@@ -236,7 +236,7 @@ class FBPosApp:
         if id is not None:
             self._recv.setConfig(id, 3, 4, True)
             self._recv.registerRecvCallback(id, lambda data: robot.set_pose(*data))
-            self._robots.append(robot)
+        self._robots.append(robot)
         return robot
 
     def _updateRobots(self):
