@@ -6,6 +6,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import os, os.path
 
 SAVE_DIR = os.path.expanduser("~/Desktop")
+SAVE_NAME_TXT = "map.txt"
 SAVE_NAME = "map.pdf"
 SAVE_NAME_WITHLABEL = "map_with_label.pdf"
 
@@ -102,7 +103,10 @@ class FBMapDrawApp:
 
     def _initPlot(self):
         self._fig.subplots_adjust(
-            left=W_PAD / A4_W, bottom=H_PAD / A4_H, right=1.0 - W_PAD / A4_W, top=1.0 - H_PAD / A4_H,
+            left=W_PAD / A4_W,
+            bottom=H_PAD / A4_H,
+            right=1.0 - W_PAD / A4_W,
+            top=1.0 - H_PAD / A4_H,
         )
         self._ax.cla()
         self._ax.axes.xaxis.set_visible(False)
@@ -114,11 +118,17 @@ class FBMapDrawApp:
         self.pointCnt.set(0)
 
     def clear(self):
+        print([x.get_center() for x in self.circles.keys()])
         self._initPlot()
         self.circles.clear()
         self._canvas.draw()
 
     def save(self):
+        with open(os.path.join(SAVE_DIR, SAVE_NAME_TXT), "w") as f:
+            f.write(f"{len(self.circles)}\n")
+            for c in self.circles.keys():
+                f.write(f"{c.get_center()[0]:.2f} {c.get_center()[1]:.2f}\n")
+
         self._setA4Size()
         for label in self.circles.values():
             label.set_visible(False)
