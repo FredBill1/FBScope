@@ -66,15 +66,26 @@ class FBMapDrawApp:
         self._opFrame.grid(row=1, column=0, sticky="we")
         self._clearButton = ttk.Button(self._opFrame, text="清空", command=self.clear)
         self._saveButton = ttk.Button(self._opFrame, text="保存", command=self.save)
+        self._loadButton = ttk.Button(self._opFrame, text="读取", command=self.load)
         self._clearButton.pack(side="left", padx=5, pady=5)
         self._saveButton.pack(side="left", padx=5, pady=5)
+        self._loadButton.pack(side="left", padx=5, pady=5)
 
-        ttk.Label(self._opFrame, text=f"保存路径: {os.path.join(SAVE_DIR, SAVE_NAME)}\t点数: ").pack(side="left", pady=5)
+        ttk.Label(self._opFrame, text=f"保存路径: {os.path.join(SAVE_DIR, SAVE_NAME_TXT)}\t点数: ").pack(side="left", pady=5)
 
         self.pointCnt = tk.IntVar(self._root, value=0)
         ttk.Label(self._opFrame, textvariable=self.pointCnt).pack(side="left", pady=5)
 
         self.circles = {}
+
+    def _createCircle(self, x, y):
+        r = self.get_circle_r(CIRCLE_SIZE)
+        circle = plt.Circle((x, y), r, color="black", picker=True)
+        label = plt.Text(x + r, y + r, f"({x:.2f}, {y:.2f})", color="black")
+        self._ax.add_patch(circle)
+        self._ax.add_artist(label)
+        self.circles[circle] = label
+        self.pointCnt.set(self.pointCnt.get() + 1)
 
     def _onPick(self, event):
         artist, mouse = event.artist, event.mouseevent
@@ -88,14 +99,7 @@ class FBMapDrawApp:
         else:
             if isinstance(artist, plt.Circle):
                 return
-            x, y = mouse.xdata, mouse.ydata
-            r = self.get_circle_r(CIRCLE_SIZE)
-            circle = plt.Circle((x, y), r, color="black", picker=True)
-            label = plt.Text(x + r, y + r, f"({x:.2f}, {y:.2f})", color="black")
-            self._ax.add_patch(circle)
-            self._ax.add_artist(label)
-            self.circles[circle] = label
-            self.pointCnt.set(self.pointCnt.get() + 1)
+            self._createCircle(mouse.xdata, mouse.ydata)
             self._canvas.draw()
 
     def _setA4Size(self):
@@ -118,7 +122,6 @@ class FBMapDrawApp:
         self.pointCnt.set(0)
 
     def clear(self):
-        print([x.get_center() for x in self.circles.keys()])
         self._initPlot()
         self.circles.clear()
         self._canvas.draw()
@@ -138,6 +141,17 @@ class FBMapDrawApp:
             label.set_visible(True)
         with PdfPages(os.path.join(SAVE_DIR, SAVE_NAME_WITHLABEL)) as pdf:
             pdf.savefig(self._fig)
+
+    def load(self):
+        if not os.path.isfile(os.path.join(SAVE_DIR, SAVE_NAME_TXT)):
+            return
+        self.clear()
+        with open(os.path.join(SAVE_DIR, SAVE_NAME_TXT), "r") as f:
+            pointCnt = int(f.readline())
+            for _ in range(pointCnt):
+                x, y = [float(x) for x in f.readline().split()]
+                self._createCircle(x, y)
+        self._canvas.draw()
 
     def get_width(self, width_cm):
         width_cm *= CM * W / SIZE_W
