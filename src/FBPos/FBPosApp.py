@@ -22,6 +22,7 @@ from FBFunc import as_float
 HEADER = b"\x00\xff\x80\x7f"
 CONTROL_ID = b"\x08"
 STATE_ID = b"\x0A"
+STOP_ID = (253).to_bytes(1, "big")
 
 
 class Robot(Polygon):
@@ -140,12 +141,18 @@ class FBPosApp:
         self._resetLimButton.pack(side="left", padx=5, pady=5)
 
         self._panButton = ttk.Checkbutton(
-            self._opFrame, text="拖拽", bootstyle=("warning", "outline", "toolbutton"), command=self._onPanClick,
+            self._opFrame,
+            text="拖拽",
+            bootstyle=("warning", "outline", "toolbutton"),
+            command=self._onPanClick,
         )
         self._panButton.pack(side="left", padx=5, pady=5)
 
         self._controlButton = ttk.Checkbutton(
-            self._opFrame, text="控制", bootstyle=("error", "outline", "toolbutton"), command=self._onControlClick,
+            self._opFrame,
+            text="控制",
+            bootstyle=("error", "outline", "toolbutton"),
+            command=self._onControlClick,
         )
         self._controlButton.pack(side="left", padx=5, pady=5)
 
@@ -155,11 +162,18 @@ class FBPosApp:
         self._resetPosButton = ttk.Button(self._opFrame, text="重置位置", command=self._resetPos)
         self._resetPosButton.pack(side="left", padx=5, pady=5)
 
+        self._stopButton = ttk.Button(self._opFrame, text="停止", command=self._stop)
+        self._stopButton.pack(side="left", padx=5, pady=5)
+
         self._robots: List[Robot] = []
         self._scatters: List[Scatter] = []
 
     def _resetPos(self):
         data = HEADER + STATE_ID + b"".join(map(as_float, (0, 0, 0, 0, 0, 0)))
+        self._client.send(data)
+
+    def _stop(self):
+        data = HEADER + STOP_ID
         self._client.send(data)
 
     def _get_control_data(self):
