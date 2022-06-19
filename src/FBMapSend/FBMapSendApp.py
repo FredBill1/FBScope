@@ -10,7 +10,7 @@ SAVE_DIR = os.path.expanduser("~/Desktop")
 SAVE_NAME_TXT = "map.txt"
 
 HEADER = b"\x00\xff\x80\x7f"
-ID = (33).to_bytes(1, "big")
+ID = (32).to_bytes(1, "big")
 
 
 class FBMapSendApp:
@@ -36,7 +36,7 @@ class FBMapSendApp:
             res = (
                 HEADER
                 + ID
-                + as_bytes(pointCnt * 2)
+                + (pointCnt * 2).to_bytes(1, "big")
                 + b"".join(as_float(float(x)) for _ in range(pointCnt) for x in f.readline().split())
             )
             self._client.send(res)
