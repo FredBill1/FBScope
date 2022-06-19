@@ -5,7 +5,7 @@ from subprocess import Popen, DETACHED_PROCESS
 from math import sqrt, floor, ceil
 
 DIR = dirname(__file__)
-APPs = ["FBSerial", "FBPlot", "FBPanel", "FBRot", "FBImg", "FBRecorder", "FBPos", "FBMapDraw"]
+APPs = ["FBSerial", "FBPlot", "FBPanel", "FBRot", "FBImg", "FBRecorder", "FBPos", "FBMapDraw", "FBMapSend"]
 
 if __name__ == "__main__":
     style = ttk.Style("cosmo")
@@ -20,4 +20,3 @@ if __name__ == "__main__":
             command=lambda app=app: Popen([executable, join(DIR, app, "main.py")], creationflags=DETACHED_PROCESS),
         ).grid(row=i // C, column=i % C, padx=5, pady=5, sticky="nsew")
     root.mainloop()
-
