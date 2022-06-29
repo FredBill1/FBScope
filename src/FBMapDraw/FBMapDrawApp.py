@@ -1,6 +1,7 @@
 import tkinter as tk
 import ttkbootstrap as ttk
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MultipleLocator
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import os, os.path
@@ -120,12 +121,13 @@ class FBMapDrawApp:
             top=1.0 - H_PAD / A4_H,
         )
         self._ax.cla()
-        self._ax.axes.xaxis.set_visible(False)
-        self._ax.axes.yaxis.set_visible(False)
         self._ax.set_xlim(0, W)
         self._ax.set_ylim(0, H)
         for x in self._ax.spines.values():
             x.set_linewidth(self.get_width(BORDER_WIDTH))
+        self._ax.xaxis.set_major_locator(MultipleLocator(SQUARE_SIZE))
+        self._ax.yaxis.set_major_locator(MultipleLocator(SQUARE_SIZE))
+        self._ax.grid()
         self.pointCnt.set(0)
 
     def clear(self):
@@ -140,10 +142,15 @@ class FBMapDrawApp:
                 f.write(f"{c.get_center()[0]:.2f} {c.get_center()[1]:.2f}\n")
 
         self._setA4Size()
+        self._ax.axes.xaxis.set_visible(False)
+        self._ax.axes.yaxis.set_visible(False)
         for label in self.circles.values():
             label.set_visible(False)
         with PdfPages(os.path.join(SAVE_DIR, SAVE_NAME)) as pdf:
             pdf.savefig(self._fig)
+
+        self._ax.axes.xaxis.set_visible(True)
+        self._ax.axes.yaxis.set_visible(True)
         for label in self.circles.values():
             label.set_visible(True)
         with PdfPages(os.path.join(SAVE_DIR, SAVE_NAME_WITHLABEL)) as pdf:
