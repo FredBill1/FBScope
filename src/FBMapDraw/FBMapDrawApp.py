@@ -29,6 +29,9 @@ BORDER_WIDTH = 0.15  # 厘米
 # 圆直径
 CIRCLE_SIZE = 0.5  # 厘米
 
+# 方格大小
+SQUARE_SIZE = 0.2  # 米
+
 
 if (A4_H - MIN_PAD * 2) / (A4_W - MIN_PAD * 2) < H / W:
     SIZE_H = A4_H - MIN_PAD * 2
@@ -99,7 +102,11 @@ class FBMapDrawApp:
         else:
             if isinstance(artist, plt.Circle):
                 return
-            self._createCircle(mouse.xdata, mouse.ydata)
+
+            x, y = mouse.xdata, mouse.ydata
+            x = (x // SQUARE_SIZE + 0.5) * SQUARE_SIZE
+            y = (y // SQUARE_SIZE + 0.5) * SQUARE_SIZE
+            self._createCircle(x, y)
             self._canvas.draw()
 
     def _setA4Size(self):
