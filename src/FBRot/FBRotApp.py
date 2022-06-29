@@ -75,9 +75,9 @@ class FBRotApp:
         ]
 
         self._modeCombo = ttk.Combobox(dataFrame, width=10, state="readonly", values=self.modes)
-        self._modeCombo.current(0)
+        self._modeCombo.current(3)
         _validate = lambda s: all(v.strip() == "_" or ValEntry.type_validator(int)(v.strip()) for v in s.split(","))
-        self._dataEntry = ValEntry(_validate, dataFrame, text="0,1,2", width=40)
+        self._dataEntry = ValEntry(_validate, dataFrame, text="1,2,3,0", width=40)
         self._dataEntry.bind("<Return>", self._applyData)
 
         ttk.Label(dataFrame, text="模式:").pack(side="left", pady=5)
